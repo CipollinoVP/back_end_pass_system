@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <title>Главное меню</title>
+        <style type="text/css">
+            a {text-decoration:none; outline:none; color:#486FFC} a:visited {color:#486FFC;}
+            a.adc {text-decoration: none; color:#0B0BCC;}
+            a.adc:hover { text-decoration: underline; color: red; }
+            a.adcr {text-decoration: none; color:#BE490B; font-weight:800;}
+            a.adcr:hover { text-decoration: underline; color: red; font-weight:800;}
+            a.adcp {text-decoration: none; color:#029C7F;}
+            a.adcp:hover { text-decoration: underline; color: #ff0000;}
+            #main_menu {position:absolute;z-index:4;}
+            #menubar, #menubar table {margin:0;padding:0;}
+            #menubar li {
+                list-style-type : none;
+                background-image: -ms-linear-gradient(top, #00A59D 0%, #00BCB3 50%, #00A59D 100%); /* IE10+ */
+                background-image: -moz-linear-gradient(top, #00A59D 0%, #00BCB3 50%, #00A59D 100%); /* Mozilla Firefox */
+                background-image: -o-linear-gradient(top, #00A59D 0%, #00BCB3 50%, #00A59D 100%); /* Opera */
+                background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #00A59D), color-stop(50, #00BCB3), color-stop(100, #00BCB3)); /* Webkit (Safari/Chrome 10) */
+                background-image: -webkit-linear-gradient(top, #00A59D 0%, #00BCB3 50%, #00A59D 100%); /* Webkit (Chrome 11+) */
+                background-image: linear-gradient(to bottom, #00A59D 0%, #00BCB3 50%, #00A59D 100%);  /* W3C Markup */
+                float   : left;
+                cursor  : pointer;
+                margin:0;
+                padding : 0 6px;
+                border-left : 1px solid rgba(50,50,50,0.4);
+                border-bottom : 1px solid rgba(50,50,50,0.4);}
+
+            #menubar img {height:16px;margin:0;padding:0;}
+
+            #menubar li a {font-size:16px; text-decoration:none; outline:none; color:#FFFFFF;display:none;}
+            #menubar li a:visited {color:#FFFFFF;}
+
+            .submnch {position:absolute;z-index:4;display:none;}
+
+            .buttoncmd{
+                margin: 0;
+                cursor:pointer;
+                list-style-type: none;
+                -webkit-border-radius: 12px;
+                -moz-border-radius: 12px;
+                background: #00B2A9; border-radius: 8px; box-shadow: 10px 10px 10px rgba(0,0,0,0.5); padding: 10px; }
+
+            .buttoncmd li {
+                border-radius: 12px;
+                -webkit-border-radius: 12px;
+                -moz-border-radius: 12px;}
+
+            .buttoncmd li:hover {background-color:#AAFAFB;
+                background-image: -ms-radial-gradient(#AFFEFA 0%, #F6FDFD 60%, #AFFEFA 100%); /* IE10+ */
+                background-image: -moz-radial-gradient(#AFFEFA 0%, #F6FDFD 60%, #AFFEFA 100%); /* Mozilla Firefox */
+                background-image: -o-radial-gradient(#AFFEFA 0%, #F6FDFD 60%, #AFFEFA 100%); /* Opera */
+                background-image: -webkit-radial-gradient(#AFFEFA 0%, #F6FDFD 60%, #AFFEFA 100%); /* Webkit (Chrome 11+) */
+                background-image: radial-gradient(ellipse farthest-corner at center, #AFFEFA 0%, #F6FDFD 60%, #AFFEFA 100%); /* W3C Markup */
+            }
+
+            .buttoncmd ul li { float: none; }
+            .buttoncmd li a {display: block; width: 100%; padding:2px; text-decoration:none; text-align:center;color:#FFFFFF;}
+            .buttoncmd ul li:hover {display:block}
+            .buttoncmd li:hover a {color:#00A59D;}
+            #buttonbar ul {
+                display: none; background-color:#00A59D;
+                position: absolute;
+                top: 100%;
+            }
+            #buttonbar li:hover ul { display: block; }
+            #buttonbar, #buttonbar ul {
+                margin: 0;
+                padding: 0;
+                list-style-type: none;
+                border-radius: 12px;
+                -webkit-border-radius: 12px;
+                -moz-border-radius: 12px;
+            }
+            #buttonbar { height: 22px; background-color:#00A59D; min-width:100%;
+                background-image: -ms-linear-gradient(top, #00A59D 0%, #00BCB3 50%, #00A59D 100%); /* IE10+ */
+                background-image: -moz-linear-gradient(top, #00A59D 0%, #00BCB3 50%, #00A59D 100%); /* Mozilla Firefox */
+                background-image: -o-linear-gradient(top, #00A59D 0%, #00BCB3 50%, #00A59D 100%); /* Opera */
+                background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #00A59D), color-stop(50, #00BCB3), color-stop(100, #00BCB3)); /* Webkit (Safari/Chrome 10) */
+                background-image: -webkit-linear-gradient(top, #00A59D 0%, #00BCB3 50%, #00A59D 100%); /* Webkit (Chrome 11+) */
+                background-image: linear-gradient(to bottom, #00A59D 0%, #00BCB3 50%, #00A59D 100%);  /* W3C Markup */
+            }
+            #buttonbar li {
+                position: relative;
+                border-radius: 12px;
+                -webkit-border-radius: 12px;
+                -moz-border-radius: 12px;
+            }
+            #buttonbar li:hover {background-color:#AAFAFB;
+                background-image: -ms-radial-gradient(#AFFEFA 0%, #F6FDFD 60%, #AFFEFA 100%); /* IE10+ */
+                background-image: -moz-radial-gradient(#AFFEFA 0%, #F6FDFD 60%, #AFFEFA 100%); /* Mozilla Firefox */
+                background-image: -o-radial-gradient(#AFFEFA 0%, #F6FDFD 60%, #AFFEFA 100%); /* Opera */
+                background-image: -webkit-radial-gradient(#AFFEFA 0%, #F6FDFD 60%, #AFFEFA 100%); /* Webkit (Chrome 11+) */
+                background-image: radial-gradient(ellipse farthest-corner at center, #AFFEFA 0%, #F6FDFD 60%, #AFFEFA 100%); /* W3C Markup */
+            }
+            #buttonbar ul li { float: none; }
+            #buttonbar li a {display: block; width: 100%; padding:2px; text-decoration:none; text-align:center;color:#FFFFFF;}
+            #buttonbar ul li:hover {display:block}
+            #buttonbar li:hover a {color:#00A59D;}
+            .textbar {background: #0800A6; border-radius: 12px; max-width:70%;text-align:center;
+                background: linear-gradient(40deg,#FF0000, #ffff00,#FF0000, #ffff00);
+                background-size: 300% 100%;
+                background-position: 0 0;
+                font-family:"Monotype Corsiva",serif;color:#FFFFFF;
+                font-size:22px;
+                -webkit-animation: backrgb 4s infinite alternate;
+                -moz-animation: backrgb 4s infinite alternate;
+                animation: backrgb 6s infinite alternate;
+            }
+            @-webkit-keyframes backrgb {
+                100% {background-position: -220px 0
+                }
+            }
+            @-moz-keyframes backrgb {
+                100% {background-position: -220px 0
+                }
+            }
+            @keyframes backrgb {
+                100% {background-position: -220px 0
+                }
+            }
+
+        </style>
+
+        <script src='/lib/jquery-3.6.0.min.js'></script>
+        <link rel="shortcut icon" href="/img/zavod-345.jpg">
+    </head>
+    <body bgcolor="CEFCE9" onload="ver_browser()" onclick="mnsmall();" onresize="centrmn();" style='margin:0;overflow-y:scroll;'>
+        <table width="100%" background="/img/background.jpg" cellspacing='0' cellpadding='0'>
+            <tr>
+                <td width="18%" align="center"><font color='#00A59D' size='5'><b>Пропускная система</b></font></td>
+                <td width="18%" align="center"></td>
+                <td align="center"><a href="http://sp:8080/main_mz.exe" title="Главное меню"><img src="/img/label_big_1.png" alt=""></a></td>
+                <td width="18%" align="right"><a href='tel:84955217011'><font color='#00A59D' size='4'><b>8 (495) 521-70-11</b></font></a><br>
+                    <a href='mailto:mail@345mz.ru'><font color='#00A59D' size='4'><b>mail@345mz.ru</b></font></a></td>
+                <td width="18%">
+                    <table width="100%" align="center"><tr>
+                        <td align="center" rowspan='2'><a href="https://www.345mz.ru" target="_blank"><img src="/img/logo_1.png" title="Сайт предприятия" alt=""></a></td>
+                        <td align="center"><a href="https://www.youtube.com/channel/UCpXbRiG3Ai3c97fAksQp1LQ?view_as=subscriber" target="_blank"><img src="/img/youtube.png" title="Видеоканал" alt=""></a></td>
+                        <td align="center" rowspan='2'><a href="/MyPortal.html" title="Главное меню"><img src="/img/house_main.png" alt=""></a></td></tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+       <table width="100%">
+            <tr>
+                <td  width="15%">
+                <table>
+                    <tr><td><h4> Меню </h4></td></tr>
+                    <tr><td width="100%"><button name = "OrderSinglePassButton"> Заказать разовый пропуск </button> </td></tr>
+                    <tr><td width="100%"><button name = "ShowPersonalPassButton"> Посмотреть мои заявки </button> </td></tr>
+                    <tr><td width="100%"><button name = "HistoryPassesButton"> Посмотреть историю пропусков </button> </td></tr>
+                    <tr><td width="100%"><button name = "ApprovalPassesButton"> Заявки на утверждение </button></td></tr>
+                    <tr><td width="100%"><button name = "AdmitButton"> Впустить </button></td> </tr>
+                    <tr><td width="100%"><button name = "LetButton"> Выпустить </button></td></tr>
+                    <tr><td width="100%"><button name = "FuturePassButton"> Предстоящие пропуска </button> </td></tr>
+                </table>
+                </td>
+                <td>
+                    <table>
+                        <tr><td>
+                            <h4> Поиск </h4>
+                        </td></tr>
+                        <tr>
+                            <td>
+                                По любом полю
+                            </td>
+                            <td>
+                                <input type="text" name = "all_field">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                По фамилии
+                            </td>
+                            <td>
+                                <input type="text" name = "surname">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                По имени
+                            </td>
+                            <td>
+                                <input type="text" name = "name">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                По отчеству
+                            </td>
+                            <td>
+                                <input type="text" name = "patronymic">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                По номеру документа
+                            </td>
+                            <td>
+                                <input type="text" name = "document_num">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                По номеру машины
+                            </td>
+                            <td>
+                                <input type="text" name = "car_num">
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+       </table>
+    <script src="/MyJScode.js"></script>
+    </body>
+</html>
