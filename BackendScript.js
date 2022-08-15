@@ -1,10 +1,28 @@
 const express = require("express");
 const app = express();
 const fs = require("fs");
+const  { Client } = require("pg");
+const urlencodedParser = express.urlencoded({extended: false});
+let type_using = -1;
+
+const client = new Client({
+    user: 'postgres',
+    host: 'localhost',
+    database: '345MF',
+    password: '11062002',
+    port: 5432,
+})
+
+client.connect();
 
 const libRouter = express.Router();
 
 libRouter.use("/jquery-3.6.0.min.js", function(request, response){
+    let fileContent = fs.readFileSync("lib//jquery-3.6.0.min.js", "utf8");
+    response.send(fileContent);
+});
+
+libRouter.use("/animate.min.css", function(request, response){
     let fileContent = fs.readFileSync("lib//jquery-3.6.0.min.js", "utf8");
     response.send(fileContent);
 });
@@ -45,8 +63,111 @@ imgRouter.use("/zavod-345.jpg", function(request, response){
 
 app.use("/img",imgRouter);
 
+app.use("/MyJSCode.js",function(request, response){
+    let fileContent = fs.readFileSync("MyJSCode.js", "utf-8");
+    response.send(fileContent);
+})
+
+app.use("/MyFirstCSS.css",function(request, response){
+    let fileContent = fs.readFileSync("MyFirstCSS.css", "utf-8");
+    response.send(fileContent);
+})
+
 app.use("/MyPortal.html",function(request, response){
     let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
     response.send(fileContent);
 })
+
+app.use("/RegisterPass.html",function(request, response){
+    let fileContent = fs.readFileSync("RegisterPass.html", "utf-8");
+    response.send(fileContent);
+})
+
+app.use("/ScriptRegister.js",function(request, response){
+    let fileContent = fs.readFileSync("ScriptRegister.js", "utf-8");
+    response.send(fileContent);
+})
+
+app.use("/MyPortal.html!1",function(request, response){
+    let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
+    response.send(fileContent);
+})
+
+app.use("/MyPortal.html!2",function(request, response){
+    let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
+    response.send(fileContent);
+})
+
+app.use("/MyPortal.html!3",function(request, response){
+    let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
+    response.send(fileContent);
+})
+
+app.use("/MyPortal.html!4",function(request, response){
+    let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
+    response.send(fileContent);
+})
+
+app.use("/MyPortal.html!5",function(request, response){
+    let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
+    response.send(fileContent);
+})
+
+app.use("/MyPortal.html!6",function(request, response){
+    let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
+    response.send(fileContent);
+})
+
+app.post("/search_pass", urlencodedParser, function (request, response) {
+    if(!request.body) return response.sendStatus(400);
+    console.log(request.body);
+    let all_search = request.body.all_field;
+    let surname_search = request.body.surname;
+    let name_search = request.body.name;
+    let patronymic_search = request.body.patronymic;
+    let document_num_search = request.body.document_num;
+    let car_num_search = request.body.car_num;
+    let query = "SELECT * FROM single_passes WHERE ((surname LIKE '%" + String(surname_search) +
+        "%') AND (name LIKE '%" + String(name_search) + "%') AND (fathername LIKE '%"
+        + String(patronymic_search) + "%') AND (number_document LIKE '%" +
+        String(document_num_search) + "%') AND (num_auto LIKE '%" + String(car_num_search) + "%'));";
+    client.query(query, (err, res) => {
+        if (err) {
+            console.log(err.stack)
+        } else {
+            console.log(res.rows[0])
+        }
+    });
+    response.redirect("/MyPortal.html");
+});
+
+app.post("/create_pass", urlencodedParser, function (request, response) {
+    let query = "INSERT INTO single_passes " +
+        "(surname,name,fathername,type_document,number_document,organization,date_pass," +
+        "time_pass,date_query,time_query,id_director,driver,num_auto,organization_custom,commentary,no_single," +
+        "finish_time,mark_car,cargo)" + " VALUES ('" + request.body.surname_input + "','"
+        + request.body.name_input + "','" + request.body.fathername_input + "','" +
+        request.body.document_type_input + "','" + request.body.document_num_input + "','" +
+        request.body.organization_input + "','"+ request.body.date_pass_input + "','" +
+        request.body.time_pass_input + "+03:00',now(),now(),289,";
+    if (request.body.driver_input){
+        query = query + "true,'";
+    } else {
+        query = query + "false,'";
+    }
+    query = query + request.body.num_auto_input + "','"
+    + "" + "','" + request.body.commentary_input + "',";
+    if (request.body.long_time_input){
+        query = query + "true,'";
+    } else {
+        query = query + "false,'";
+    }
+    query = query + request.body.finish_date_input + "','" + request.body.mark_auto_input +
+        "','" + request.body.cargo_input + "');";
+    client.query(query);
+    response.redirect("/MyPortal.html");
+});
+
+
+
 app.listen(3000);

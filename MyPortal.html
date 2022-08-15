@@ -149,7 +149,10 @@
                 <td  width="15%">
                 <table>
                     <tr><td><h4> Меню </h4></td></tr>
-                    <tr><td width="100%"><button name = "OrderSinglePassButton"> Заказать разовый пропуск </button> </td></tr>
+                    <tr><td><button onclick="window.location.href = '/RegisterPass.html';">
+                        Заказать разовый пропуск
+                    </button>
+                    </td></tr>
                     <tr><td width="100%"><button name = "ShowPersonalPassButton"> Посмотреть мои заявки </button> </td></tr>
                     <tr><td width="100%"><button name = "HistoryPassesButton"> Посмотреть историю пропусков </button> </td></tr>
                     <tr><td width="100%"><button name = "ApprovalPassesButton"> Заявки на утверждение </button></td></tr>
@@ -159,7 +162,7 @@
                 </table>
                 </td>
                 <td>
-                    <form method="post" autocomplete="off" action="/MyJSCode.js">
+                    <form action="/search_pass" method="post" autocomplete="off">
                     <table>
                         <tr><td>
                             <h4> Поиск </h4>
@@ -213,10 +216,11 @@
                             </td>
                         </tr>
                     </table>
+                        <input type="submit" value="Поиск" />
                     </form>
                 </td>
             </tr>
-       </table>
-    <script src="/MyJSCode.js"></script>
+        </table>
+        <script src = MyJSCode.js></script>
     </body>
 </html>
