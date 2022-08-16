@@ -1,19 +1,38 @@
-const express = require("express");
-const app = express();
+const express = require('express'),
+    app = express(),
+    session = require('express-session'),
+    passport = require('passport'),
+    localStrategy = require('passport-local').Strategy,
+    flash = require('connect-flash');
 const fs = require("fs");
 const  { Client } = require("pg");
 const urlencodedParser = express.urlencoded({extended: false});
-let type_using = -1;
 
-const client = new Client({
-    user: 'postgres',
+let clients = [new Client({user: 'postgres',
     host: 'localhost',
     database: '345MF',
     password: '11062002',
-    port: 5432,
-})
+    port: 5432
+})]
 
-client.connect();
+function checkAuth() {
+    return app.use((req, res, next) => {
+        if (req.bodyUsed) next()
+        else res.redirect('/login');
+    })
+}
+
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(session({ secret: 'you secret key' }));
+app.use(flash());
+app.use(passport.initialize(undefined));
+app.use(passport.session(undefined));
+
+clients[0].connect();
 
 const libRouter = express.Router();
 
@@ -118,6 +137,24 @@ app.use("/MyPortal.html!6",function(request, response){
     response.send(fileContent);
 })
 
+app.use("/",function(request,response){
+    let username = require("os").userInfo().username;
+    console.log(username);
+})
+
+app.use("/user",async function (request, response) {
+    let username = require("os").userInfo().username;
+    const buffers = [];   // буфер для получаемых данных
+
+    // получаем данные из запроса в буфер
+    for await (const chunk of request) {
+        buffers.push(chunk);
+    }
+    // получаем строковое представление ответа
+    let userName = Buffer.concat(buffers).toString();
+    response.end(userName);
+})
+
 app.post("/search_pass", urlencodedParser, function (request, response) {
     if(!request.body) return response.sendStatus(400);
     console.log(request.body);
@@ -131,7 +168,7 @@ app.post("/search_pass", urlencodedParser, function (request, response) {
         "%') AND (name LIKE '%" + String(name_search) + "%') AND (fathername LIKE '%"
         + String(patronymic_search) + "%') AND (number_document LIKE '%" +
         String(document_num_search) + "%') AND (num_auto LIKE '%" + String(car_num_search) + "%'));";
-    client.query(query, (err, res) => {
+    clients[0].query(query, (err, res) => {
         if (err) {
             console.log(err.stack)
         } else {
@@ -164,7 +201,7 @@ app.post("/create_pass", urlencodedParser, function (request, response) {
     }
     query = query + request.body.finish_date_input + "','" + request.body.mark_auto_input +
         "','" + request.body.cargo_input + "');";
-    client.query(query);
+    clients[0].query(query);
     response.redirect("/MyPortal.html");
 });
 
