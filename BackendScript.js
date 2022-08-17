@@ -3,17 +3,8 @@ const app = express();
 const fs = require("fs");
 const  { Client } = require("pg");
 const urlencodedParser = express.urlencoded({extended: false});
+const cookieParser = require('cookie-parser');
 let type_using = -1;
-
-const client = new Client({
-    user: 'postgres',
-    host: 'localhost',
-    database: '345MF',
-    password: '11062002',
-    port: 5432,
-})
-
-client.connect();
 
 const libRouter = express.Router();
 
@@ -28,6 +19,8 @@ libRouter.use("/animate.min.css", function(request, response){
 });
 
 app.use("/lib", libRouter);
+
+app.use(cookieParser());
 
 const imgRouter = express.Router();
 
@@ -74,47 +67,84 @@ app.use("/MyFirstCSS.css",function(request, response){
 })
 
 app.use("/MyPortal.html",function(request, response){
+    if (request.cookies.login === undefined) {
+        response.redirect("/login.html");
+    }
     let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
     response.send(fileContent);
 })
 
 app.use("/RegisterPass.html",function(request, response){
+    if (request.cookies.login === undefined) {
+        response.redirect("/login.html");
+    }
     let fileContent = fs.readFileSync("RegisterPass.html", "utf-8");
     response.send(fileContent);
 })
 
 app.use("/ScriptRegister.js",function(request, response){
+    if (request.cookies.login === undefined) {
+        response.redirect("/login.html");
+    }
     let fileContent = fs.readFileSync("ScriptRegister.js", "utf-8");
     response.send(fileContent);
 })
 
 app.use("/MyPortal.html!1",function(request, response){
+    if (request.cookies.login === undefined) {
+        response.redirect("/login.html");
+    }
     let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
     response.send(fileContent);
 })
 
 app.use("/MyPortal.html!2",function(request, response){
+    if (request.cookies.login === undefined) {
+        response.redirect("/login.html");
+    }
     let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
     response.send(fileContent);
 })
 
 app.use("/MyPortal.html!3",function(request, response){
+    if (request.cookies.login === undefined) {
+        response.redirect("/login.html");
+    }
     let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
     response.send(fileContent);
 })
 
 app.use("/MyPortal.html!4",function(request, response){
+    if (request.cookies.login === undefined) {
+        response.redirect("/login.html");
+    }
     let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
     response.send(fileContent);
 })
 
 app.use("/MyPortal.html!5",function(request, response){
+    if (request.cookies.login === undefined) {
+        response.redirect("/login.html");
+    }
     let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
     response.send(fileContent);
 })
 
 app.use("/MyPortal.html!6",function(request, response){
+    if (request.cookies.login === undefined) {
+        response.redirect("/login.html");
+    }
     let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
+    response.send(fileContent);
+})
+
+app.use("/login.html",function(request, response){
+    let fileContent = fs.readFileSync("login.html", "utf-8");
+    response.send(fileContent);
+})
+
+app.use("/loginERR.html",function(request, response){
+    let fileContent = fs.readFileSync("loginERR.html", "utf-8");
     response.send(fileContent);
 })
 
@@ -131,6 +161,13 @@ app.post("/search_pass", urlencodedParser, function (request, response) {
         "%') AND (name LIKE '%" + String(name_search) + "%') AND (fathername LIKE '%"
         + String(patronymic_search) + "%') AND (number_document LIKE '%" +
         String(document_num_search) + "%') AND (num_auto LIKE '%" + String(car_num_search) + "%'));";
+    let client = new Client({
+        user: request.cookies.login,
+        host: 'localhost',
+        database: '345MF',
+        password: request.cookies.password,
+        port: 5432,
+    })
     client.query(query, (err, res) => {
         if (err) {
             console.log(err.stack)
@@ -139,6 +176,27 @@ app.post("/search_pass", urlencodedParser, function (request, response) {
         }
     });
     response.redirect("/MyPortal.html");
+});
+
+app.post("/auth", urlencodedParser, function (request, response) {
+    let client = new Client({
+        user: request.body.login_input,
+        host: 'localhost',
+        database: '345MF',
+        password: request.body.password_input,
+        port: 5432,
+    })
+    client.connect();
+    client.query('SELECT NOW()', (err, res) => {
+        if (err === null) {
+            response.cookie("login",request.body.login_input,{maxAge: 999999999999999});
+            response.cookie("password",request.body.password_input, {maxAge: 999999999999999});
+            response.redirect("/MyPortal.html");
+        } else {
+            response.redirect("/loginERR.html");
+        }
+        client.end()
+    });
 });
 
 app.post("/create_pass", urlencodedParser, function (request, response) {
@@ -164,6 +222,13 @@ app.post("/create_pass", urlencodedParser, function (request, response) {
     }
     query = query + request.body.finish_date_input + "','" + request.body.mark_auto_input +
         "','" + request.body.cargo_input + "');";
+    let client = new Client({
+        user: request.cookies.login,
+        host: 'localhost',
+        database: '345MF',
+        password: request.cookies.password,
+        port: 5432,
+    })
     client.query(query);
     response.redirect("/MyPortal.html");
 });
