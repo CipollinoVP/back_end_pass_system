@@ -4,17 +4,77 @@ const fs = require("fs");
 const  { Client } = require("pg");
 const urlencodedParser = express.urlencoded({extended: false});
 const cookieParser = require('cookie-parser');
-let type_using = -1;
-
 const libRouter = express.Router();
 
+async function main_MyPortal(main_data) {
+    if ((main_data.req.cookies.login === undefined) || (main_data.req.cookies.password === undefined)) {
+        main_data.res.redirect("/login.html");
+        return;
+    }
+    main_data.fContent = fs.readFileSync("MyPortal.html", "utf-8");
+    main_data.cl = new Client({
+        user: main_data.req.cookies.login,
+        host: 'localhost',
+        database: '345MF',
+        password: main_data.req.cookies.password,
+        port: 5432,
+    })
+    main_data.cl.connect();
+    let query = "WITH RECURSIVE cte AS (SELECT oid FROM pg_roles WHERE rolname ='" + main_data.req.cookies.login
+        + "' UNION ALL SELECT m.roleid FROM" +
+        " cte JOIN   pg_auth_members m ON m.member = cte.oid) SELECT oid, oid::regrole::text AS rolename FROM cte";
+    const result = await main_data.cl.query({
+        rowMode: 'array',
+        text: query,
+    })
+    let type_user = result.rows[1][1];
+    let OrderButton = "";
+    let PersonalPassButton = "";
+    let HistoryPassesButton = "";
+    let FuturePassesButton = "";
+    let AdmitButton = "";
+    let LetButton = "";
+    let ApprovalPassesButton = "";
+    if ((type_user === "cheif_admin") || (type_user === "most_cheif_admin") || (type_user === "tenant")) {
+        OrderButton = "<tr><td><button onclick=\"window.location.href = '/RegisterPass.html';\">\n" +
+            "                        Заказать разовый пропуск\n" +
+            "                    </button>\n" +
+            "                    </td></tr>";
+        PersonalPassButton = "<tr><td width=\"100%\"><button name = \"ShowPersonalPassButton\">"
+            + "Посмотреть мои заявки </button> </td></tr>";
+
+    }
+    if ((type_user === "controller_by_walk") || (type_user === "most_cheif_admin") || (type_user === "controller_car")) {
+        HistoryPassesButton = "<tr><td width=\"100%\"><button name = \"HistoryPassesButton\">" +
+            " Посмотреть историю пропусков </button> </td></tr>";
+        FuturePassesButton = "<tr><td width=\"100%\"><button name = \"FuturePassButton\">" +
+            " Предстоящие пропуска </button> </td></tr>";
+
+    }
+    if ((type_user === "controller_by_walk") || (type_user === "controller_car")) {
+        AdmitButton = "<tr><td width=\"100%\"><button name = \"AdmitButton\"> Впустить </button></td></tr>";
+        LetButton = "<tr><td width=\"100%\"><button name = \"LetButton\"> Выпустить </button></td></tr>";
+    }
+    if (type_user === "most_cheif_admin") {
+        ApprovalPassesButton = "<tr><td width=\"100%\"><button name =" +
+            " \"ApprovalPassesButton\"> Заявки на утверждение </button></td></tr>";
+    }
+    main_data.fContent = main_data.fContent.replace("{OrderButton}", OrderButton);
+    main_data.fContent = main_data.fContent.replace("{PersonalPassButton}", PersonalPassButton);
+    main_data.fContent = main_data.fContent.replace("{HistoryPassesButton}", HistoryPassesButton);
+    main_data.fContent = main_data.fContent.replace("{FuturePassesButton}", FuturePassesButton);
+    main_data.fContent = main_data.fContent.replace("{AdmitButton}", AdmitButton);
+    main_data.fContent = main_data.fContent.replace("{LetButton}", LetButton);
+    main_data.fContent = main_data.fContent.replace("{ApprovalPassesButton}", ApprovalPassesButton);
+}
+
 libRouter.use("/jquery-3.6.0.min.js", function(request, response){
-    let fileContent = fs.readFileSync("lib//jquery-3.6.0.min.js", "utf8");
+    let fileContent = fs.readFileSync("lib/jquery-3.6.0.min.js", "utf8");
     response.send(fileContent);
 });
 
 libRouter.use("/animate.min.css", function(request, response){
-    let fileContent = fs.readFileSync("lib//jquery-3.6.0.min.js", "utf8");
+    let fileContent = fs.readFileSync("lib/animate.min.css", "utf8");
     response.send(fileContent);
 });
 
@@ -56,86 +116,117 @@ imgRouter.use("/zavod-345.jpg", function(request, response){
 
 app.use("/img",imgRouter);
 
-app.use("/MyJSCode.js",function(request, response){
+app.get("/MyJSCode.js",function(request, response){
     let fileContent = fs.readFileSync("MyJSCode.js", "utf-8");
     response.send(fileContent);
 })
 
-app.use("/MyFirstCSS.css",function(request, response){
-    let fileContent = fs.readFileSync("MyFirstCSS.css", "utf-8");
-    response.send(fileContent);
-})
 
-app.use("/MyPortal.html",function(request, response){
-    if (request.cookies.login === undefined) {
-        response.redirect("/login.html");
+app.get("/MyPortal.html",async function (request, response) {
+    let main_data = {
+        req: request,
+        res: response,
+        fContent: undefined,
+        cl: undefined,
     }
-    let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
-    response.send(fileContent);
+    await main_MyPortal(main_data);
+    main_data.fContent = main_data.fContent.replace("{ListPasses}","");
+    await main_data.cl.end();
+    response.send(main_data.fContent);
 })
 
-app.use("/RegisterPass.html",function(request, response){
-    if (request.cookies.login === undefined) {
+app.get("/RegisterPass.html",function(request, response){
+    if ((request.cookies.login === undefined) || (request.cookies.password === undefined)) {
         response.redirect("/login.html");
     }
     let fileContent = fs.readFileSync("RegisterPass.html", "utf-8");
     response.send(fileContent);
 })
 
-app.use("/ScriptRegister.js",function(request, response){
-    if (request.cookies.login === undefined) {
+app.get("/ScriptRegister.js",function(request, response){
+    if ((request.cookies.login === undefined) || (request.cookies.password === undefined)) {
         response.redirect("/login.html");
     }
     let fileContent = fs.readFileSync("ScriptRegister.js", "utf-8");
     response.send(fileContent);
 })
 
-app.use("/MyPortal.html!1",function(request, response){
-    if (request.cookies.login === undefined) {
-        response.redirect("/login.html");
+app.get("/MyPortal.html!1*",async function (request, response) {
+    let main_data = {
+        req: request,
+        res: response,
+        fContent: undefined,
+        cl: undefined,
     }
-    let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
-    response.send(fileContent);
+    await main_MyPortal(main_data);
+    let listContent = fs.readFileSync("resource.html", "utf-8");
+    main_data.fContent = main_data.fContent.replace("{ListPasses}",listContent);
+    response.send(main_data.fContent);
 })
 
-app.use("/MyPortal.html!2",function(request, response){
-    if (request.cookies.login === undefined) {
-        response.redirect("/login.html");
+app.use("/MyPortal.html!2*",async function (request, response) {
+    let main_data = {
+        req: request,
+        res: response,
+        fContent: undefined,
+        cl: undefined,
     }
-    let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
-    response.send(fileContent);
+    await main_MyPortal(main_data);
+    let listContent = fs.readFileSync("resource.html", "utf-8");
+    main_data.fContent = main_data.fContent.replace("{ListPasses}", listContent);
+    response.send(main_data.fContent);
 })
 
-app.use("/MyPortal.html!3",function(request, response){
-    if (request.cookies.login === undefined) {
-        response.redirect("/login.html");
+app.get("/MyPortal.html!3*",async function (request, response) {
+    let main_data = {
+        req: request,
+        res: response,
+        fContent: undefined,
+        cl: undefined,
     }
-    let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
-    response.send(fileContent);
+    await main_MyPortal(main_data);
+    let listContent = fs.readFileSync("resource.html", "utf-8");
+    main_data.fContent = main_data.fContent.replace("{ListPasses}", listContent);
+    response.send(main_data.fContent);
 })
 
-app.use("/MyPortal.html!4",function(request, response){
-    if (request.cookies.login === undefined) {
-        response.redirect("/login.html");
+app.get("/MyPortal.html!4*",async function (request, response) {
+    let main_data = {
+        req: request,
+        res: response,
+        fContent: undefined,
+        cl: undefined,
     }
-    let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
-    response.send(fileContent);
+    await main_MyPortal(main_data);
+    let listContent = fs.readFileSync("resource.html", "utf-8");
+    main_data.fContent = main_data.fContent.replace("{ListPasses}", listContent);
+    response.send(main_data.fContent);
 })
 
-app.use("/MyPortal.html!5",function(request, response){
-    if (request.cookies.login === undefined) {
-        response.redirect("/login.html");
+app.get("/MyPortal.html!5*",async function (request, response) {
+    let main_data = {
+        req: request,
+        res: response,
+        fContent: undefined,
+        cl: undefined,
     }
-    let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
-    response.send(fileContent);
+    await main_MyPortal(main_data);
+    let listContent = fs.readFileSync("resource.html", "utf-8");
+    main_data.fContent = main_data.fContent.replace("{ListPasses}", listContent);
+    response.send(main_data.fContent);
 })
 
-app.use("/MyPortal.html!6",function(request, response){
-    if (request.cookies.login === undefined) {
-        response.redirect("/login.html");
+app.get("/MyPortal.html!6*",async function (request, response) {
+    let main_data = {
+        req: request,
+        res: response,
+        fContent: undefined,
+        cl: undefined,
     }
-    let fileContent = fs.readFileSync("MyPortal.html", "utf-8");
-    response.send(fileContent);
+    await main_MyPortal(main_data);
+    let listContent = fs.readFileSync("resource.html", "utf-8");
+    main_data.fContent = main_data.fContent.replace("{ListPasses}", listContent);
+    response.send(main_data.fContent);
 })
 
 app.use("/login.html",function(request, response){
@@ -148,7 +239,17 @@ app.use("/loginERR.html",function(request, response){
     response.send(fileContent);
 })
 
-app.post("/search_pass", urlencodedParser, function (request, response) {
+app.use("/logout",function (request,response){
+    if (request.cookies.login !== undefined) {
+        response.clearCookie("login");
+    }
+    if (request.cookies.password !== undefined) {
+        response.clearCookie("password");
+    }
+    response.redirect("/login.html");
+})
+
+app.post("/MyPortal.html?",urlencodedParser, function (request, response) {
     if(!request.body) return response.sendStatus(400);
     console.log(request.body);
     let all_search = request.body.all_field;
@@ -175,7 +276,7 @@ app.post("/search_pass", urlencodedParser, function (request, response) {
             console.log(res.rows[0])
         }
     });
-    response.redirect("/MyPortal.html");
+    client.end();
 });
 
 app.post("/auth", urlencodedParser, function (request, response) {
@@ -230,6 +331,7 @@ app.post("/create_pass", urlencodedParser, function (request, response) {
         port: 5432,
     })
     client.query(query);
+    client.end();
     response.redirect("/MyPortal.html");
 });
 

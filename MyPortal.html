@@ -144,80 +144,96 @@
                 </td>
             </tr>
         </table>
-       <table width="100%">
+        <script>function Start_Find(){document.getElementById('f_search').submit();}</script>
+        <table width="100%">
             <tr>
-                <td  width="15%">
-                <table>
-                    <tr><td><h4> Меню </h4></td></tr>
-                    <tr><td><button onclick="window.location.href = '/RegisterPass.html';">
-                        Заказать разовый пропуск
-                    </button>
-                    </td></tr>
-                    <tr><td width="100%"><button name = "ShowPersonalPassButton"> Посмотреть мои заявки </button> </td></tr>
-                    <tr><td width="100%"><button name = "HistoryPassesButton"> Посмотреть историю пропусков </button> </td></tr>
-                    <tr><td width="100%"><button name = "ApprovalPassesButton"> Заявки на утверждение </button></td></tr>
-                    <tr><td width="100%"><button name = "AdmitButton"> Впустить </button></td> </tr>
-                    <tr><td width="100%"><button name = "LetButton"> Выпустить </button></td></tr>
-                    <tr><td width="100%"><button name = "FuturePassButton"> Предстоящие пропуска </button> </td></tr>
-                </table>
-                </td>
                 <td>
-                    <form action="/search_pass" method="post" autocomplete="off">
-                    <table>
-                        <tr><td>
-                            <h4> Поиск </h4>
-                        </td></tr>
+                    <table width="50%">
                         <tr>
-                            <td>
-                                По любом полю
+                            <td width="15%">
+                                <table>
+                                    <tr>
+                                        <td><h4> Меню </h4></td>
+                                    </tr>
+                                    {OrderButton}
+                                    {PersonalPassButton}
+                                    {HistoryPassesButton}
+                                    {ApprovalPassesButton}
+                                    {AdmitButton}
+                                    {LetButton}
+                                    {FuturePassesButton}
+                                    <tr>
+                                        <td width="100%">
+                                            <button onclick="window.location.href = '/logout'"> Выйти</button>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                             <td>
-                                <input type="text" name = "all_field">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                По фамилии
-                            </td>
-                            <td>
-                                <input type="text" name = "surname">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                По имени
-                            </td>
-                            <td>
-                                <input type="text" name = "name">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                По отчеству
-                            </td>
-                            <td>
-                                <input type="text" name = "patronymic">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                По номеру документа
-                            </td>
-                            <td>
-                                <input type="text" name = "document_num">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                По номеру машины
-                            </td>
-                            <td>
-                                <input type="text" name = "car_num">
+                                <form id="f_search" method="post" target="OUT">
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <h4> Поиск </h4>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                По любом полю
+                                            </td>
+                                            <td>
+                                                <input type="text" name="all_field" onkeyup="Start_Find()">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                По фамилии
+                                            </td>
+                                            <td>
+                                                <input type="text" name="surname" onkeyup="Start_Find()">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                По имени
+                                            </td>
+                                            <td>
+                                                <input type="text" name="name" onkeyup="Start_Find()">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                По отчеству
+                                            </td>
+                                            <td>
+                                                <input type="text" name="patronymic" onkeyup="Start_Find()">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                По номеру документа
+                                            </td>
+                                            <td>
+                                                <input type="text" name="document_num" onkeyup="Start_Find()">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                По номеру машины
+                                            </td>
+                                            <td>
+                                                <input type="text" name="car_num" onkeyup="Start_Find()">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <input type="submit" value="Поиск"/>
+                                </form>
                             </td>
                         </tr>
                     </table>
-                        <input type="submit" value="Поиск" />
-                    </form>
+                </td>
+                <td>
+                    {ListPasses}
                 </td>
             </tr>
         </table>
