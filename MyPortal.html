@@ -170,7 +170,7 @@
                                 </table>
                             </td>
                             <td>
-                                <form id="f_search" method="post" target="OUT">
+                                <form id="f_search" action="{ActionSearchUrl}" method="post" target="OUT">
                                     <table>
                                         <tr>
                                             <td>
@@ -182,7 +182,9 @@
                                                 По любом полю
                                             </td>
                                             <td>
-                                                <input type="text" name="all_field" onkeyup="Start_Find()">
+                                                <label>
+                                                    <input type="text" name="all_field" value="{TextAllField}" onkeyup="Start_Find()">
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -190,7 +192,9 @@
                                                 По фамилии
                                             </td>
                                             <td>
-                                                <input type="text" name="surname" onkeyup="Start_Find()">
+                                                <label>
+                                                    <input type="text" name="surname" value="{TextSurnameField}" onkeyup="Start_Find()">
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -198,7 +202,9 @@
                                                 По имени
                                             </td>
                                             <td>
-                                                <input type="text" name="name" onkeyup="Start_Find()">
+                                                <label>
+                                                    <input type="text" name="name" value="{TextNameField}" onkeyup="Start_Find()">
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -206,7 +212,9 @@
                                                 По отчеству
                                             </td>
                                             <td>
-                                                <input type="text" name="patronymic" onkeyup="Start_Find()">
+                                                <label>
+                                                    <input type="text" name="patronymic" value="{TextPatronymicField}" onkeyup="Start_Find()">
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -214,7 +222,9 @@
                                                 По номеру документа
                                             </td>
                                             <td>
-                                                <input type="text" name="document_num" onkeyup="Start_Find()">
+                                                <label>
+                                                    <input type="text" name="document_num" value="{TextDocumentNumField}" onkeyup="Start_Find()">
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -222,7 +232,9 @@
                                                 По номеру машины
                                             </td>
                                             <td>
-                                                <input type="text" name="car_num" onkeyup="Start_Find()">
+                                                <label>
+                                                    <input type="text" name="car_num" value="{TextCarNumField}" onkeyup="Start_Find()">
+                                                </label>
                                             </td>
                                         </tr>
                                     </table>
@@ -232,11 +244,9 @@
                         </tr>
                     </table>
                 </td>
-                <td>
-                    {ListPasses}
-                </td>
             </tr>
         </table>
+        {ListPasses}
         <script src = MyJSCode.js></script>
     </body>
 </html>
