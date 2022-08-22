@@ -327,8 +327,14 @@ async function refresh(request, response) {
                 } else {
                     single_passes = single_passes + "<td align=\"center\"><img src=\"img/no.png\"></td></tr>\n";
                 }
-                single_passes = single_passes + "<tr><td><label>Коммантарий</label></td>" +
+                single_passes = single_passes + "<tr><td><label>Комментарий</label></td>" +
                     "<td><label>"+res_1.rows[i][21]+"</label></td></tr>";
+                single_passes = single_passes + "<tr><td><button onclick=\"window.location.href'/"+request.url
+                    +"ZBEdit"+String(res_1.rows[i][3])+"'\"> Редактирвать заявку" +
+                    "</button></td><td><button onclick=\"window.location.href = '/"+request.url+"ZBDelete"+
+                    String(res_1.rows[i][3])+"'\">Отменить заявку</button></td><td><button onclick=\"window.location.href = '/"+
+                    request.url +"ZBResend"+String(res_1.rows[i][3])+"'\"> Перепослать </button>" +
+                    "</td></tr>"
                 single_passes = single_passes + "</tbody></table></td>"
                 if ((i % 2 === 1) || (i === n_1 - 1)) {
                     single_passes = single_passes + "</tr>";
@@ -436,6 +442,25 @@ async function refresh(request, response) {
     response.send(main_data.fContent);
     response.end();
 }
+
+app.use("*ZBEdit*",function (request,response){
+    console.log("Кнопка 1");
+    response.redirect(request.url.substring(0,request.url.indexOf("ZB")));
+})
+
+app.use("*ZBDelete*",function (request,response){
+    console.log("Кнопка 2");
+    response.redirect(request.url.substring(0,request.url.indexOf("ZB")));
+})
+
+app.use("*ZBResend*",function (request,response){
+    console.log("Кнопка 3");
+    response.redirect(request.url.substring(0,request.url.indexOf("ZB")));
+})
+
+app.use("*zbdelete*",function (request,response){
+    response.redirect(request.url.substring(0,request.url.indexOf("zb")));
+})
 
 app.get("/MyPortal.html!*",refresh);
 
