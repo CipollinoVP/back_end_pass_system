@@ -159,7 +159,7 @@ imgRouter.use("/zavod-345.jpg", function(request, response){
 
 app.use("/img",imgRouter);
 
-app.get("/MyJSCode.js",function(request, response){
+app.use("/MyJSCode.js",function(request, response){
     let fileContent = fs.readFileSync("MyJSCode.js", "utf-8");
     response.send(fileContent);
 })
@@ -185,6 +185,31 @@ app.get("/RegisterPass.html",function(request, response){
         response.redirect("/login.html");
     }
     let fileContent = fs.readFileSync("RegisterPass.html", "utf-8");
+    fileContent = fileContent.replace("{UsableScript}","ScriptRegister.js");
+    fileContent = fileContent.replace("{SurnameRegister}","");
+    fileContent = fileContent.replace("{NameRegister}","");
+    fileContent = fileContent.replace("{FathernameRegister}","");
+    fileContent = fileContent.replace("{OrganizationRegister}","");
+    fileContent = fileContent.replace("{DocumentTypeRegister}","");
+    fileContent = fileContent.replace("{DocumentNumRegister}","");
+    fileContent = fileContent.replace("{DatePassValue}","2022-08-23");
+    fileContent = fileContent.replace("{TimePassValue}","12:10");
+    fileContent = fileContent.replace("{CommentaryRegister}","");
+    fileContent = fileContent.replace("{DriverInputRegister}","false");
+    fileContent = fileContent.replace("{NumAutoRegister}","");
+    fileContent = fileContent.replace("{MarkAutoRegister}","");
+    fileContent = fileContent.replace("{CargoRegister}","");
+    fileContent = fileContent.replace("{LongTimeCheckboxRegister}","false");
+    fileContent = fileContent.replace("{FinishTime}","2022-08-23");
+    response.send(fileContent);
+})
+
+app.get("/EditPass.html*",function(request, response){
+    if ((request.cookies.login === undefined) || (request.cookies.password === undefined)) {
+        response.redirect("/login.html");
+    }
+    let fileContent = fs.readFileSync("RegisterPass.html", "utf-8");
+    fileContent = fileContent.replace("{UsableScript}","ScriptEdit.js");
     response.send(fileContent);
 })
 
@@ -193,6 +218,14 @@ app.get("/ScriptRegister.js",function(request, response){
         response.redirect("/login.html");
     }
     let fileContent = fs.readFileSync("ScriptRegister.js", "utf-8");
+    response.send(fileContent);
+})
+
+app.get("/ScriptEdit.js",function(request, response){
+    if ((request.cookies.login === undefined) || (request.cookies.password === undefined)) {
+        response.redirect("/login.html");
+    }
+    let fileContent = fs.readFileSync("ScriptEdit.js", "utf-8");
     response.send(fileContent);
 })
 
@@ -329,12 +362,13 @@ async function refresh(request, response) {
                 }
                 single_passes = single_passes + "<tr><td><label>Комментарий</label></td>" +
                     "<td><label>"+res_1.rows[i][21]+"</label></td></tr>";
-                single_passes = single_passes + "<tr><td><button onclick=\"window.location.href'/"+request.url
-                    +"ZBEdit"+String(res_1.rows[i][3])+"'\"> Редактирвать заявку" +
-                    "</button></td><td><button onclick=\"window.location.href = '/"+request.url+"ZBDelete"+
-                    String(res_1.rows[i][3])+"'\">Отменить заявку</button></td><td><button onclick=\"window.location.href = '/"+
-                    request.url +"ZBResend"+String(res_1.rows[i][3])+"'\"> Перепослать </button>" +
-                    "</td></tr>"
+                single_passes = single_passes + "<tr><td><form action='"+request.url+"zbedit"+String(res_1.rows[i][3])+
+                    "' method='post'><input type='submit' value='Редактировать заявку' target=\"OUT\">" +
+                    "</form></td><td><form action='"+request.url+"zbdelete"+String(res_1.rows[i][3])+
+                    "' method='post' target=\"OUT\"><input type='submit' value='Отменить заявку'></form></td><td>" +
+                    "<form action='"+request.url+"zbresend"+String(res_1.rows[i][3])+
+                    "' method='post' target=\"OUT\"><input type='submit' value='Перепослать'></form>" +
+                    "</td></tr>";
                 single_passes = single_passes + "</tbody></table></td>"
                 if ((i % 2 === 1) || (i === n_1 - 1)) {
                     single_passes = single_passes + "</tr>";
@@ -443,22 +477,24 @@ async function refresh(request, response) {
     response.end();
 }
 
-app.use("*ZBEdit*",function (request,response){
+app.post("/*zbedit*",function (request,response){
     console.log("Кнопка 1");
-    response.redirect(request.url.substring(0,request.url.indexOf("ZB")));
+    if ((request.cookies.login === undefined) || (request.cookies.password === undefined)) {
+        response.redirect("/login.html");
+    }
+    let fileContent = fs.readFileSync("RegisterPass.html", "utf-8");
+    let query = "SELECT * FROM single_passes WHERE id = ";
+
+    response.redirect(request.url.substring(0,request.url.indexOf("zb")));
 })
 
-app.use("*ZBDelete*",function (request,response){
+app.post("/*zbdelete*",function (request,response){
     console.log("Кнопка 2");
-    response.redirect(request.url.substring(0,request.url.indexOf("ZB")));
+    response.redirect(request.url.substring(0,request.url.indexOf("zb")));
 })
 
-app.use("*ZBResend*",function (request,response){
+app.post("*zbresend*",function (request,response){
     console.log("Кнопка 3");
-    response.redirect(request.url.substring(0,request.url.indexOf("ZB")));
-})
-
-app.use("*zbdelete*",function (request,response){
     response.redirect(request.url.substring(0,request.url.indexOf("zb")));
 })
 
@@ -508,6 +544,56 @@ app.post("/auth", urlencodedParser, function (request, response) {
 });
 
 app.post("/create_pass", urlencodedParser, async function (request, response) {
+    let client = new Client({
+        user: request.cookies.login,
+        host: 'localhost',
+        database: '345MF',
+        password: request.cookies.password,
+        port: 5432,
+    })
+    client.connect(err => {
+        if (err) {
+            console.error('connection error', err.stack)
+        } else {
+            console.log('connected')
+        }
+    });
+    let query_id_worker = "SELECT id_workers FROM registers_user WHERE login_database = '"
+        + request.cookies.login + "';";
+    const result_id_worker = await client.query({
+        rowMode: 'array',
+        text: query_id_worker,
+    });
+    let id_worker = result_id_worker.rows[0][0];
+    let query = "INSERT INTO single_passes " +
+        "(surname,name,fathername,type_document,number_document,organization,date_pass," +
+        "time_pass,date_query,time_query,id_director,driver,num_auto,organization_custom,commentary,no_single," +
+        "finish_time,mark_car,cargo)" + " VALUES ('" + request.body.surname_input + "','"
+        + request.body.name_input + "','" + request.body.fathername_input + "','" +
+        request.body.document_type_input + "','" + request.body.document_num_input + "','" +
+        request.body.organization_input + "','" + request.body.date_pass_input + "','" +
+        request.body.time_pass_input + "+03:00',now(),now(),"+String(id_worker)+",";
+    if (request.body.driver_input) {
+        query = query + "true,'";
+    } else {
+        query = query + "false,'";
+    }
+    query = query + request.body.num_auto_input + "','"
+        + "" + "','" + request.body.commentary_input + "',";
+    if (request.body.long_time_input) {
+        query = query + "true,'";
+    } else {
+        query = query + "false,'";
+    }
+    query = query + request.body.finish_date_input + "','" + request.body.mark_auto_input +
+        "','" + request.body.cargo_input + "');";
+    client
+        .query(query)
+        .catch(e => console.error(e.stack));
+    response.redirect("/MyPortal.html");
+});
+
+app.post("/*edit_pass",urlencodedParser, async function (request, response) {
     let client = new Client({
         user: request.cookies.login,
         host: 'localhost',
