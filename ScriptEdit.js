@@ -21,7 +21,8 @@ function confirm_add_pass() {
     let admit = confirm(message_confirm);
     if (admit) {
         document.FormRegister.method = "post";
-        document.FormRegister.action = document.url + "/edit_pass";
+        document.FormRegister.action = "/edit_pass"+document.documentURI.substring(document.documentURI.indexOf("edit")
+            + 4, document.documentURI.length);
         document.FormRegister.submit();
     } else {
 

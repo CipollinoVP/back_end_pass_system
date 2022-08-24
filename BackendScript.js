@@ -86,6 +86,52 @@ async function zero_init(main_data){
     main_data.fContent = main_data.fContent.replace("{TextCarNumField}","");
 }
 
+function get_date(date_str){
+    let str = date_str.substring(11,15);
+    str = str + "-";
+    switch (date_str.substring(4,7)){
+        case "Jan":
+            str = str + "01";
+            break;
+        case "Feb":
+            str = str + "02";
+            break;
+        case "Mar":
+            str = str + "03";
+            break;
+        case "Apr":
+            str = str + "04";
+            break;
+        case "May":
+            str = str + "05";
+            break;
+        case "Jun":
+            str = str + "06";
+            break;
+        case "Jul":
+            str = str + "07";
+            break;
+        case "Aug":
+            str = str + "08";
+            break;
+        case "Sep":
+            str = str + "09";
+            break;
+        case "Oct":
+            str = str + "10";
+            break;
+        case "Nov":
+            str = str + "11";
+            break;
+        case "Dec":
+            str = str + "12";
+            break;
+    }
+    str = str + "-";
+    str = str + date_str.substring(8,10);
+    return str;
+}
+
 libRouter.use("/jquery-3.6.0.min.js", function(request, response){
     let fileContent = fs.readFileSync("lib/jquery-3.6.0.min.js", "utf8");
     response.send(fileContent);
@@ -180,36 +226,41 @@ app.get("/MyPortal.html",async function (request, response) {
     response.send(main_data.fContent);
 })
 
-app.get("/RegisterPass.html",function(request, response){
+app.get("/RegisterPass.html",async function (request, response) {
     if ((request.cookies.login === undefined) || (request.cookies.password === undefined)) {
         response.redirect("/login.html");
     }
+    let client = new Client({
+        user: request.cookies.login,
+        host: 'localhost',
+        database: '345MF',
+        password: request.cookies.password,
+        port: 5432,
+    });
+    client.connect();
+    const result_time = await client.query({
+        rowMode: 'array',
+        text: "SELECT now();",
+    });
+    let time = String(result_time.rows[0][0]);
     let fileContent = fs.readFileSync("RegisterPass.html", "utf-8");
-    fileContent = fileContent.replace("{UsableScript}","ScriptRegister.js");
-    fileContent = fileContent.replace("{SurnameRegister}","");
-    fileContent = fileContent.replace("{NameRegister}","");
-    fileContent = fileContent.replace("{FathernameRegister}","");
-    fileContent = fileContent.replace("{OrganizationRegister}","");
-    fileContent = fileContent.replace("{DocumentTypeRegister}","");
-    fileContent = fileContent.replace("{DocumentNumRegister}","");
-    fileContent = fileContent.replace("{DatePassValue}","2022-08-23");
-    fileContent = fileContent.replace("{TimePassValue}","12:10");
-    fileContent = fileContent.replace("{CommentaryRegister}","");
-    fileContent = fileContent.replace("{DriverInputRegister}","false");
-    fileContent = fileContent.replace("{NumAutoRegister}","");
-    fileContent = fileContent.replace("{MarkAutoRegister}","");
-    fileContent = fileContent.replace("{CargoRegister}","");
-    fileContent = fileContent.replace("{LongTimeCheckboxRegister}","false");
-    fileContent = fileContent.replace("{FinishTime}","2022-08-23");
-    response.send(fileContent);
-})
-
-app.get("/EditPass.html*",function(request, response){
-    if ((request.cookies.login === undefined) || (request.cookies.password === undefined)) {
-        response.redirect("/login.html");
-    }
-    let fileContent = fs.readFileSync("RegisterPass.html", "utf-8");
-    fileContent = fileContent.replace("{UsableScript}","ScriptEdit.js");
+    fileContent = fileContent.replace("{CaptionButton}", "Подать заявку");
+    fileContent = fileContent.replace("{UsableScript}", "ScriptRegister.js");
+    fileContent = fileContent.replace("{SurnameRegister}", "");
+    fileContent = fileContent.replace("{NameRegister}", "");
+    fileContent = fileContent.replace("{FathernameRegister}", "");
+    fileContent = fileContent.replace("{OrganizationRegister}", "");
+    fileContent = fileContent.replace("{DocumentTypeRegister}", "");
+    fileContent = fileContent.replace("{DocumentNumRegister}", "");
+    fileContent = fileContent.replace("{DatePassValue}", get_date(time));
+    fileContent = fileContent.replace("{TimePassValue}", time.substring(16,21));
+    fileContent = fileContent.replace("{CommentaryRegister}", "");
+    fileContent = fileContent.replace("{DriverInputRegister}", "");
+    fileContent = fileContent.replace("{NumAutoRegister}", "");
+    fileContent = fileContent.replace("{MarkAutoRegister}", "");
+    fileContent = fileContent.replace("{CargoRegister}", "");
+    fileContent = fileContent.replace("{LongTimeCheckboxRegister}", "");
+    fileContent = fileContent.replace("{FinishTime}", get_date(time));
     response.send(fileContent);
 })
 
@@ -298,12 +349,12 @@ async function refresh(request, response) {
                         "                    <td rowspan=\"6\" width=\"80\"><img src=\"img/user2.png\"></td>\n" +
                         "</tr>\n" +
                         "<tr>\n" +
-                        "                    <td colspan=\"4\"><b><font color=\"#999900\" size=\"5\">" +
+                        "                    <td colspan=\"4\"><b><font color=\"#0B0BCC\" size=\"5\">" +
                         res_1.rows[i][0] +" " +
                         res_1.rows[i][1] +" " +
                         res_1.rows[i][2] +
                         "</font><font\n" +
-                        "                            color=\"#079D3C\" size=\"5\"> на рассмотрении</font></b></td>\n" +
+                        "                            color=\"#999900\" size=\"5\"> на рассмотрении</font></b></td>\n" +
                         "                </tr>";
                 } else if (res_1.rows[i][20]) {
                     single_passes = single_passes + "<table width=\"600\" class=\"approved_pass\" height=\"200\">\n" +
@@ -326,12 +377,12 @@ async function refresh(request, response) {
                         "                    <td rowspan=\"6\" width=\"80\"><img src=\"img/user2.png\"></td>\n" +
                         "</tr>\n" +
                         "<tr>\n" +
-                        "                    <td colspan=\"4\"><b><font color=\"#660000\" size=\"5\">" +
+                        "                    <td colspan=\"4\"><b><font color=\"#0B0BCC\" size=\"5\">" +
                         res_1.rows[i][0] +" " +
                         res_1.rows[i][1] +" " +
                         res_1.rows[i][2] +
                         "</font><font\n" +
-                        "                            color=\"#079D3C\" size=\"5\"> отклонено</font></b></td>\n" +
+                        "                            color=\"#660000\" size=\"5\"> отклонено</font></b></td>\n" +
                         "                </tr>";
                 }
                 single_passes = single_passes + "<tr><td><label> Тип документа </label></td><td><label>" +
@@ -349,14 +400,14 @@ async function refresh(request, response) {
                 single_passes = single_passes + "<tr><td><label> Представитель организации </label></td>" +
                     "<td><label>" + res_1.rows[i][9] +"</label></td></tr>";
                 single_passes = single_passes + "<tr><td align=\"center\"><img src=\"img/date.png\"></td>\n" +
-                    "<td><label>"+res_1.rows[i][12]+"</label></td>" +
+                    "<td><label>"+get_date(String(res_1.rows[i][12]))+"</label></td>" +
                     "<td align=\"center\"><img src=\"img/time.png\"></td>" +
                     "<td><label>" + res_1.rows[i][13].substring(0,5) + "</label></td></tr>";
                 single_passes = single_passes + "<tr><td><label> Долговременный: </label></td>";
                 if (res_1.rows[i][22]) {
                     single_passes = single_passes + "<td align=\"center\"><img src=\"img/ok.png\"></td></tr>\n";
                     single_passes = single_passes + "<tr><td><label>Дата окончания:</label></td>" +
-                        "<td><label>"+res_1.rows[i][23]+"</label></td></tr>";
+                        "<td><label>"+get_date(String(res_1.rows[i][23]))+"</label></td></tr>";
                 } else {
                     single_passes = single_passes + "<td align=\"center\"><img src=\"img/no.png\"></td></tr>\n";
                 }
@@ -393,7 +444,63 @@ async function refresh(request, response) {
             });
             let n_2 = res_2.rowCount;
             for (let i = 0; i < n_2; i++){
-
+                if (i % 2 === 0) {
+                    single_passes = single_passes + "<tr>\n";
+                }
+                if (res_2.rows[i][22]) {
+                    single_passes = single_passes + "<table width=\"600\" class=\"long_time_pass\">\n" +
+                        "                <tbody>\n" +
+                        "<tr>\n" +
+                        "                    <td rowspan=\"6\" width=\"80\"><img src=\"img/user2.png\"></td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "                    <td colspan=\"4\"><b><font color=\"#0B0BCC\" size=\"5\">" +
+                        res_2.rows[i][0] +" " +
+                        res_2.rows[i][1] +" " +
+                        res_2.rows[i][2] +
+                        "</font><font\n" +
+                        "                            color=\"#004d00\" size=\"5\"> многоразовый </font></b></td>\n" +
+                        "                </tr>";
+                } else {
+                    single_passes = single_passes + "<table width=\"600\" class=\"single_pass\" height=\"200\">\n" +
+                        "                <tbody>\n" +
+                        "<tr>\n" +
+                        "                    <td rowspan=\"6\" width=\"80\"><img src=\"img/user2.png\"></td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "                    <td colspan=\"4\"><b><font color=\"#0B0BCC\" size=\"5\">" +
+                        res_2.rows[i][0] +" " +
+                        res_2.rows[i][1] +" " +
+                        res_2.rows[i][2] +
+                        "</font><font\n" +
+                        "                            color=\"#660000\" size=\"5\"> разовый </font></b></td>\n" +
+                        "                </tr>";
+                }
+                single_passes = single_passes + "<tr><td><label> Тип документа </label></td><td><label>" +
+                    res_2.rows[i][6] +"</label></td><td><label> Номер документа </label></td><td><label>" +
+                    res_2.rows[i][7] +"</label></td></tr>";
+                if (type_user === "controller_car") {
+                    single_passes = single_passes + "<tr><td><label> Водитель </label></td>";
+                    single_passes = single_passes + "<td align=\"center\"><img src=\"img/ok.png\"></td></tr>\n" +
+                        "<tr><td><label> Номер машины </label></td><td><label>"+res_2.rows[i][18]+"</label></td>" +
+                        "<td><label> Марка машины </label></td><td><label>"+res_2.rows[i][24]+"</label></td></tr>\n" +
+                        "<tr><td><label> Груз: </label></td><td><label>"+res_2.rows[i][25]+"</label></td></tr>";
+                }
+                single_passes = single_passes + "<tr><td><label> Представитель организации </label></td>" +
+                    "<td><label>" + res_2.rows[i][9] +"</label></td></tr>";
+                single_passes = single_passes + "<tr><td align=\"center\"><img src=\"img/date.png\"></td>\n" +
+                    "<td><label>"+get_date(String(res_2.rows[i][12]))+"</label></td>" +
+                    "<td align=\"center\"><img src=\"img/time.png\"></td>" +
+                    "<td><label>" + res_2.rows[i][13].substring(0,5) + "</label></td></tr>";
+                single_passes = single_passes + "<tr><td><label>Комментарий</label></td>" +
+                    "<td><label>"+res_2.rows[i][21]+"</label></td></tr>";
+                single_passes = single_passes + "<tr><td><form action='"+request.url+"zbadmit"+String(res_2.rows[i][3])+
+                    "' method='post'><input type='submit' value='Пропустить' target=\"OUT\">" +
+                    "</form></td></tr>";
+                single_passes = single_passes + "</tbody></table></td>"
+                if ((i % 2 === 1) || (i === n_2 - 1)) {
+                    single_passes = single_passes + "</tr>";
+                }
             }
             break;
         case 3:
@@ -477,28 +584,171 @@ async function refresh(request, response) {
     response.end();
 }
 
-app.post("/*zbedit*",function (request,response){
-    console.log("Кнопка 1");
+
+app.post("/*zbadmit*",async function (request, response) {
+    let id = Number(request.url.substring(request.url.indexOf("admit")+5, request.url.length));
+    let query1 = "";
+    query1 = query1 + "SELECT status_factory, no_single FROM single_passes WHERE id = " + String(id) + ";";
+    let client = new Client({
+        user: request.cookies.login,
+        host: 'localhost',
+        database: '345MF',
+        password: request.cookies.password,
+        port: 5432,
+    });
+    let query_all_info = "SELECT * FROM single_passes WHERE id = "
+    client.connect();
+    const res1 = await client.query({
+        rowMode: 'array',
+        text: query1,
+    });
+    let n = res1.rowCount;
+    if (n === 0) {
+        console.log("Development error");
+        return;
+    }
+    if (!res1.rows[0][1]) {
+        if (!res1.rows[0][0]) {
+            let query2 = "";
+            query2 = query2 + "UPDATE single_passes SET status_factory = true, pass_using = true, enter_time = now() WHERE "
+            + "id = " + String(id) + ";";
+            client.query(query2);
+        } else {
+            let query_help = "";
+            query_help = query_help + "SELECT main_pass FROM single_passes WHERE ((id = " + String(id) + ") AND "
+            + "(main_pass IS NOT NULL));";
+            const res_help = await client.query({
+                rowMode: 'array',
+                text: query_help,
+            });
+            let n_help = res_help.rowCount;
+            if (n_help === 0) {
+                let query2 = "";
+                query2 = query2 +
+                "UPDATE single_passes SET status_factory = false, status_pass = false, exit_time = now() WHERE "
+                + "id = " + String(id) + ";";
+                client.query(query2);
+            } else {
+                let query2 = "";
+                query2 = query2
+                + "UPDATE single_passes SET status_factory = false, status_pass = false, exit_time = now() WHERE "
+                + "id = " + id + ";";
+                client.query(query2);
+                let n_main = res_help.rows[0][0];
+                let query3 = "";
+                query3 = query3 + "UPDATE single_passes SET status_factory = false WHERE id = " + n_main + ";";
+                client.query(query3);
+            }
+        }
+    } else {
+        let query2 = "";
+        query2 = query2 + "INSERT INTO single_passes (surname,name,fathername,driver,date_pass,time_pass,"
+        + "date_query,time_query,enter_time,pass_using,id_director,status_factory,status_appology,main_pass," +
+        "cargo,mark_car,organization,organization_custom,type_document,number_document,num_auto) VALUES ('" +
+        list_pass[selected].surname + "','" + list_pass[selected].name + "','" + list_pass[selected].fathername
+        + "',";
+        if (list_pass[selected].driver) {
+            query2 << "true,";
+        } else {
+            query2 << "false,";
+        }
+        query2 << "now(),now(),now(),now(),now(),true," << list_pass[selected].id_director << ",true,true,"
+        << list_pass[selected].id << ",'" << list_pass[selected].cargo << "','" << list_pass[selected].mark_auto <<
+        "','" << list_pass[selected].organization << "','" << list_pass[selected].organization_custom << "','" <<
+        list_pass[selected].type_document << "','" << list_pass[selected].number_document << "','"
+        << list_pass[selected].num_auto << "');";
+        PQexec(conn, query2.str().c_str());
+        std::stringstream
+        query3;
+        query3 << "UPDATE single_passes SET status_factory = true WHERE "
+        << "id = " << list_pass[selected].id << ";";
+        PQexec(conn, query3.str().c_str());
+    }
+    response.redirect(request.url.substring(0,request.url.indexOf("zb")));
+})
+
+app.post("/*zbedit*",async function (request, response) {
+    let id = Number(request.url.substring(request.url.indexOf("edit")+4, request.url.length));
     if ((request.cookies.login === undefined) || (request.cookies.password === undefined)) {
         response.redirect("/login.html");
     }
     let fileContent = fs.readFileSync("RegisterPass.html", "utf-8");
-    let query = "SELECT * FROM single_passes WHERE id = ";
-
-    response.redirect(request.url.substring(0,request.url.indexOf("zb")));
+    let query = "SELECT * FROM single_passes WHERE id = " + String(id) + ";";
+    let client = new Client({
+        user: request.cookies.login,
+        host: 'localhost',
+        database: '345MF',
+        password: request.cookies.password,
+        port: 5432,
+    })
+    client.connect();
+    const result_info_worker = await client.query({
+        rowMode: 'array',
+        text: query,
+    });
+    fileContent = fileContent.replace("{UsableScript}", "ScriptEdit.js");
+    fileContent = fileContent.replace("{CaptionButton}", "Редактировать заявку");
+    fileContent = fileContent.replace("{SurnameRegister}", result_info_worker.rows[0][0]);
+    fileContent = fileContent.replace("{NameRegister}", result_info_worker.rows[0][1]);
+    fileContent = fileContent.replace("{FathernameRegister}", result_info_worker.rows[0][2]);
+    fileContent = fileContent.replace("{OrganizationRegister}", result_info_worker.rows[0][9]);
+    fileContent = fileContent.replace("{DocumentTypeRegister}", result_info_worker.rows[0][6]);
+    fileContent = fileContent.replace("{DocumentNumRegister}", result_info_worker.rows[0][7]);
+    fileContent = fileContent.replace("{DatePassValue}", get_date(String(result_info_worker.rows[0][12])));
+    fileContent = fileContent.replace("{TimePassValue}", String(result_info_worker.rows[0][13].substring(0,5)));
+    fileContent = fileContent.replace("{CommentaryRegister}", result_info_worker.rows[0][21]);
+    if (result_info_worker.rows[0][17]) {
+        fileContent = fileContent.replace("{DriverInputRegister}", "checked");
+    } else {
+        fileContent = fileContent.replace("{DriverInputRegister}", "");
+    }
+    fileContent = fileContent.replace("{NumAutoRegister}", result_info_worker.rows[0][18]);
+    fileContent = fileContent.replace("{MarkAutoRegister}", result_info_worker.rows[0][24]);
+    fileContent = fileContent.replace("{CargoRegister}", result_info_worker.rows[0][25]);
+    if (result_info_worker.rows[0][22]) {
+        fileContent = fileContent.replace("{LongTimeCheckboxRegister}", "checked");
+    } else {
+        fileContent = fileContent.replace("{LongTimeCheckboxRegister}", "");
+    }
+    fileContent = fileContent.replace("{FinishTime}", get_date(String(result_info_worker.rows[0][23])));
+    response.send(fileContent);
 })
 
 app.post("/*zbdelete*",function (request,response){
-    console.log("Кнопка 2");
+    let query = "DELETE FROM single_passes WHERE id = ";
+    let id = Number(request.url.substring(request.url.indexOf("delete")+6,request.url.length));
+    query = query + String(id) + ";";
+    let client = new Client({
+        user: request.cookies.login,
+        host: 'localhost',
+        database: '345MF',
+        password: request.cookies.password,
+        port: 5432,
+    })
+    client.connect();
+    client.query(query);
     response.redirect(request.url.substring(0,request.url.indexOf("zb")));
 })
 
 app.post("*zbresend*",function (request,response){
-    console.log("Кнопка 3");
+    let query = "UPDATE single_passes SET status_appology = NULL WHERE id = ";
+    let id = Number(request.url.substring(request.url.indexOf("resend")+6,request.url.length));
+    query = query + String(id) + ";";
+    let client = new Client({
+        user: request.cookies.login,
+        host: 'localhost',
+        database: '345MF',
+        password: request.cookies.password,
+        port: 5432,
+    })
+    client.connect();
+    client.query(query);
     response.redirect(request.url.substring(0,request.url.indexOf("zb")));
 })
 
 app.get("/MyPortal.html!*",refresh);
+
+app.post("/MyPortal.html!*",urlencodedParser,refresh);
 
 app.use("/login.html",function(request, response){
     let fileContent = fs.readFileSync("login.html", "utf-8");
@@ -593,7 +843,8 @@ app.post("/create_pass", urlencodedParser, async function (request, response) {
     response.redirect("/MyPortal.html");
 });
 
-app.post("/*edit_pass",urlencodedParser, async function (request, response) {
+app.post("/edit_pass*",urlencodedParser, async function (request, response) {
+    let id = Number(request.url.substring(request.url.indexOf("ss")+2,request.url.length));
     let client = new Client({
         user: request.cookies.login,
         host: 'localhost',
@@ -608,35 +859,24 @@ app.post("/*edit_pass",urlencodedParser, async function (request, response) {
             console.log('connected')
         }
     });
-    let query_id_worker = "SELECT id_workers FROM registers_user WHERE login_database = '"
-        + request.cookies.login + "';";
-    const result_id_worker = await client.query({
-        rowMode: 'array',
-        text: query_id_worker,
-    });
-    let id_worker = result_id_worker.rows[0][0];
-    let query = "INSERT INTO single_passes " +
-        "(surname,name,fathername,type_document,number_document,organization,date_pass," +
-        "time_pass,date_query,time_query,id_director,driver,num_auto,organization_custom,commentary,no_single," +
-        "finish_time,mark_car,cargo)" + " VALUES ('" + request.body.surname_input + "','"
-        + request.body.name_input + "','" + request.body.fathername_input + "','" +
-        request.body.document_type_input + "','" + request.body.document_num_input + "','" +
-        request.body.organization_input + "','" + request.body.date_pass_input + "','" +
-        request.body.time_pass_input + "+03:00',now(),now(),"+String(id_worker)+",";
-    if (request.body.driver_input) {
-        query = query + "true,'";
+    let query = "UPDATE single_passes SET \n";
+    query = query + "surname = '" + request.body.surname_input + "', name = '" + request.body.name_input +
+    "', fathername = '" + request.body.fathername_input + "', type_document = '" +
+    request.body.document_type_input + "', number_document = '" + request.body.document_num_input + "', num_auto = '" +
+    request.body.num_auto_input + "', commentary = '" + request.body.commentary_input + "', date_pass = '" +
+    request.body.date_pass_input + "', time_pass = '" + request.body.time_pass_input + "', driver = ";
+    if (request.body.driver_input){
+        query = query + "true, status_appology = NULL";
     } else {
-        query = query + "false,'";
+        query = query + "false, status_appology = NULL";
     }
-    query = query + request.body.num_auto_input + "','"
-        + "" + "','" + request.body.commentary_input + "',";
-    if (request.body.long_time_input) {
-        query = query + "true,'";
+    if (request.body.long_time_input){
+        query = query + ", no_single = TRUE";
     } else {
-        query = query + "false,'";
+        query = query + ", no_single = FALSE";
     }
-    query = query + request.body.finish_date_input + "','" + request.body.mark_auto_input +
-        "','" + request.body.cargo_input + "');";
+    query = query + ", status_pass = FALSE, mark_car ='" + request.body.mark_auto_input
+    + "', cargo ='"+ request.body.cargo_input +"', finish_time = '" + request.body.finish_date_input + "' WHERE id = " + id + ";";
     client
         .query(query)
         .catch(e => console.error(e.stack));
