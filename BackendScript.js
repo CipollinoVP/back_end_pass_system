@@ -5,6 +5,7 @@ const  { Client } = require("pg");
 const urlencodedParser = express.urlencoded({extended: false});
 const cookieParser = require('cookie-parser');
 const {request} = require("express");
+const {get} = require("prompt");
 const libRouter = express.Router();
 
 async function main_MyPortal(main_data) {
@@ -203,6 +204,16 @@ imgRouter.use("/zavod-345.jpg", function(request, response){
     response.send(fileContent);
 });
 
+imgRouter.use("/enter-2.png", function(request, response){
+    let fileContent = fs.readFileSync("img/enter-2.png");
+    response.send(fileContent);
+});
+
+imgRouter.use("/exit.png", function(request, response){
+    let fileContent = fs.readFileSync("img/exit.png");
+    response.send(fileContent);
+});
+
 app.use("/img",imgRouter);
 
 app.use("/MyJSCode.js",function(request, response){
@@ -341,6 +352,7 @@ async function refresh(request, response) {
                 if (i % 2 === 0) {
                     single_passes = single_passes + "<tr>\n";
                 }
+                single_passes = single_passes + "<td>\n";
                 if (res_1.rows[i][20] === null) {
                     single_passes = single_passes
                         + "<td style=\"min-width:600;\"><table width=\"600\" class=\"waiting_pass\" height=\"200\">\n" +
@@ -447,6 +459,7 @@ async function refresh(request, response) {
                 if (i % 2 === 0) {
                     single_passes = single_passes + "<tr>\n";
                 }
+                single_passes = single_passes + "<td>\n";
                 if (res_2.rows[i][22]) {
                     single_passes = single_passes + "<table width=\"600\" class=\"long_time_pass\">\n" +
                         "                <tbody>\n" +
@@ -515,7 +528,64 @@ async function refresh(request, response) {
             });
             let n_3 = res_3.rowCount;
             for (let i = 0; i < n_3; i++){
-
+                if (i % 2 === 0) {
+                    single_passes = single_passes + "<tr>\n";
+                }
+                single_passes = single_passes + "<td>\n";
+                if (res_3.rows[i][22]) {
+                    single_passes = single_passes + "<table width=\"600\" class=\"long_time_pass\">\n" +
+                        "                <tbody>\n" +
+                        "<tr>\n" +
+                        "                    <td rowspan=\"6\" width=\"80\"><img src=\"img/user2.png\"></td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "                    <td colspan=\"4\"><b><font color=\"#0B0BCC\" size=\"5\">" +
+                        res_3.rows[i][0] +" " +
+                        res_3.rows[i][1] +" " +
+                        res_3.rows[i][2] +
+                        "</font><font\n" +
+                        "                            color=\"#004d00\" size=\"5\"> многоразовый </font></b></td>\n" +
+                        "                </tr>";
+                } else {
+                    single_passes = single_passes + "<table width=\"600\" class=\"single_pass\" height=\"200\">\n" +
+                        "                <tbody>\n" +
+                        "<tr>\n" +
+                        "                    <td rowspan=\"6\" width=\"80\"><img src=\"img/user2.png\"></td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "                    <td colspan=\"4\"><b><font color=\"#0B0BCC\" size=\"5\">" +
+                        res_3.rows[i][0] +" " +
+                        res_3.rows[i][1] +" " +
+                        res_3.rows[i][2] +
+                        "</font><font\n" +
+                        "                            color=\"#660000\" size=\"5\"> разовый </font></b></td>\n" +
+                        "                </tr>";
+                }
+                single_passes = single_passes + "<tr><td><label> Тип документа </label></td><td><label>" +
+                    res_3.rows[i][6] +"</label></td><td><label> Номер документа </label></td><td><label>" +
+                    res_3.rows[i][7] +"</label></td></tr>";
+                if (type_user === "controller_car") {
+                    single_passes = single_passes + "<tr><td><label> Водитель </label></td>";
+                    single_passes = single_passes + "<td align=\"center\"><img src=\"img/ok.png\"></td></tr>\n" +
+                        "<tr><td><label> Номер машины </label></td><td><label>"+res_3.rows[i][18]+"</label></td>" +
+                        "<td><label> Марка машины </label></td><td><label>"+res_3.rows[i][24]+"</label></td></tr>\n" +
+                        "<tr><td><label> Груз: </label></td><td><label>"+res_3.rows[i][25]+"</label></td></tr>";
+                }
+                single_passes = single_passes + "<tr><td><label> Представитель организации </label></td>" +
+                    "<td><label>" + res_3.rows[i][9] +"</label></td></tr>";
+                single_passes = single_passes + "<tr><td align=\"center\"><img src=\"img/date.png\"></td>\n" +
+                    "<td><label>"+get_date(String(res_3.rows[i][12]))+"</label></td>" +
+                    "<td align=\"center\"><img src=\"img/time.png\"></td>" +
+                    "<td><label>" + res_3.rows[i][13].substring(0,5) + "</label></td></tr>";
+                single_passes = single_passes + "<tr><td><label>Комментарий</label></td>" +
+                    "<td><label>"+res_3.rows[i][21]+"</label></td></tr>";
+                single_passes = single_passes + "<tr><td><form action='"+request.url+"zbadmit"+String(res_3.rows[i][3])+
+                    "' method='post'><input type='submit' value='Пропустить' target=\"OUT\">" +
+                    "</form></td></tr>";
+                single_passes = single_passes + "</tbody></table></td>"
+                if ((i % 2 === 1) || (i === n_3 - 1)) {
+                    single_passes = single_passes + "</tr>";
+                }
             }
             break;
         case 4:
@@ -526,7 +596,68 @@ async function refresh(request, response) {
             });
             let n_4 = res_4.rowCount;
             for (let i = 0; i < n_4; i++){
-
+                if (i % 2 === 0) {
+                    single_passes = single_passes + "<tr>\n";
+                }
+                single_passes = single_passes + "<td>\n";
+                if (res_4.rows[i][16]) {
+                    single_passes = single_passes + "<table width=\"600\" class=\"used_pass\">\n" +
+                        "                <tbody>\n" +
+                        "<tr>\n" +
+                        "                    <td rowspan=\"6\" width=\"80\"><img src=\"img/user2.png\"></td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "                    <td colspan=\"4\"><b><font color=\"#0B0BCC\" size=\"5\">" +
+                        res_4.rows[i][0] +" " +
+                        res_4.rows[i][1] +" " +
+                        res_4.rows[i][2] +
+                        "</font><font\n" +
+                        "                            color=\"#004d00\" size=\"5\"> использован </font></b></td>\n" +
+                        "                </tr>";
+                    single_passes = single_passes + "<tr><td><img src=\"img/enter-2.png\">" +
+                        "</td><td>"+get_date(String(res_4.rows[i][14]))+"  "+String(res_4.rows[i][14]).substring(16,21)
+                        +"</td>"+ "<td><img src=\"img/exit.png\">" +
+                        "</td><td>"+get_date(String(res_4.rows[i][15]))+"  "+String(res_4.rows[i][15]).substring(16,21)
+                        +"</td></tr>"
+                } else {
+                    single_passes = single_passes + "<table width=\"600\" class=\"unused_pass\" height=\"200\">\n" +
+                        "                <tbody>\n" +
+                        "<tr>\n" +
+                        "                    <td rowspan=\"6\" width=\"80\"><img src=\"img/user2.png\"></td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "                    <td colspan=\"4\"><b><font color=\"#0B0BCC\" size=\"5\">" +
+                        res_4.rows[i][0] +" " +
+                        res_4.rows[i][1] +" " +
+                        res_4.rows[i][2] +
+                        "</font><font\n" +
+                        "                            color=\"#660000\" size=\"5\"> не использован </font></b></td>\n" +
+                        "                </tr>";
+                }
+                single_passes = single_passes + "<tr><td><label> Тип документа </label></td><td><label>" +
+                    res_4.rows[i][6] +"</label></td><td><label> Номер документа </label></td><td><label>" +
+                    res_4.rows[i][7] +"</label></td></tr>";
+                single_passes = single_passes + "<tr><td><label> Водитель </label></td>";
+                if (res_4.rows[i][17]) {
+                    single_passes = single_passes + "<td align=\"center\"><img src=\"img/ok.png\"></td></tr>\n" +
+                        "<tr><td><label> Номер машины </label></td><td><label>"+res_4.rows[i][18]+"</label></td>" +
+                        "<td><label> Марка машины </label></td><td><label>"+res_4.rows[i][24]+"</label></td></tr>\n" +
+                        "<tr><td><label> Груз: </label></td><td><label>"+res_4.rows[i][25]+"</label></td></tr>";
+                } else {
+                    single_passes = single_passes + "<td align=\"center\"><img src=\"img/no.png\"></td></tr>\n";
+                }
+                single_passes = single_passes + "<tr><td><label> Представитель организации </label></td>" +
+                    "<td><label>" + res_4.rows[i][9] +"</label></td></tr>";
+                single_passes = single_passes + "<tr><td align=\"center\"><img src=\"img/date.png\"></td>\n" +
+                    "<td><label>"+get_date(String(res_4.rows[i][12]))+"</label></td>" +
+                    "<td align=\"center\"><img src=\"img/time.png\"></td>" +
+                    "<td><label>" + res_4.rows[i][13].substring(0,5) + "</label></td></tr>";
+                single_passes = single_passes + "<tr><td><label>Комментарий</label></td>" +
+                    "<td><label>"+res_4.rows[i][21]+"</label></td></tr>";
+                single_passes = single_passes + "</tbody></table></td>"
+                if ((i % 2 === 1) || (i === n_4 - 1)) {
+                    single_passes = single_passes + "</tr>";
+                }
             }
             break;
         case 5:
@@ -538,7 +669,90 @@ async function refresh(request, response) {
             });
             let n_5 = res_5.rowCount;
             for (let i = 0; i < n_5; i++){
-
+                if (i % 2 === 0) {
+                    single_passes = single_passes + "<tr>\n";
+                }
+                single_passes = single_passes + "<td>\n";
+                if (res_5.rows[i][20] === null) {
+                    single_passes = single_passes
+                        + "<td style=\"min-width:600;\"><table width=\"600\" class=\"waiting_pass\" height=\"200\">\n" +
+                        "                <tbody>\n" +
+                        "<tr>\n" +
+                        "                    <td rowspan=\"6\" width=\"80\"><img src=\"img/user2.png\"></td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "                    <td colspan=\"4\"><b><font color=\"#0B0BCC\" size=\"5\">" +
+                        res_5.rows[i][0] +" " +
+                        res_5.rows[i][1] +" " +
+                        res_5.rows[i][2] +
+                        "</font><font\n" +
+                        "                            color=\"#999900\" size=\"5\"> на рассмотрении</font></b></td>\n" +
+                        "                </tr>";
+                } else if (res_5.rows[i][20]) {
+                    single_passes = single_passes + "<table width=\"600\" class=\"approved_pass\" height=\"200\">\n" +
+                        "                <tbody>\n" +
+                        "<tr>\n" +
+                        "                    <td rowspan=\"6\" width=\"80\"><img src=\"img/user2.png\"></td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "                    <td colspan=\"4\"><b><font color=\"#0B0BCC\" size=\"5\">" +
+                        res_5.rows[i][0] +" " +
+                        res_5.rows[i][1] +" " +
+                        res_5.rows[i][2] +
+                        "</font><font\n" +
+                        "                            color=\"#004d00\" size=\"5\"> одобрено</font></b></td>\n" +
+                        "                </tr>";
+                } else {
+                    single_passes = single_passes + "<table width=\"600\" class=\"rejected_pass\" height=\"200\">\n" +
+                        "                <tbody>\n" +
+                        "<tr>\n" +
+                        "                    <td rowspan=\"6\" width=\"80\"><img src=\"img/user2.png\"></td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "                    <td colspan=\"4\"><b><font color=\"#0B0BCC\" size=\"5\">" +
+                        res_5.rows[i][0] +" " +
+                        res_5.rows[i][1] +" " +
+                        res_5.rows[i][2] +
+                        "</font><font\n" +
+                        "                            color=\"#660000\" size=\"5\"> отклонено</font></b></td>\n" +
+                        "                </tr>";
+                }
+                single_passes = single_passes + "<tr><td><label> Тип документа </label></td><td><label>" +
+                    res_5.rows[i][6] +"</label></td><td><label> Номер документа </label></td><td><label>" +
+                    res_5.rows[i][7] +"</label></td></tr>";
+                single_passes = single_passes + "<tr><td><label> Водитель </label></td>";
+                if (res_5.rows[i][17]) {
+                    single_passes = single_passes + "<td align=\"center\"><img src=\"img/ok.png\"></td></tr>\n" +
+                        "<tr><td><label> Номер машины </label></td><td><label>"+res_1.rows[i][18]+"</label></td>" +
+                        "<td><label> Марка машины </label></td><td><label>"+res_1.rows[i][24]+"</label></td></tr>\n" +
+                        "<tr><td><label> Груз: </label></td><td><label>"+res_1.rows[i][25]+"</label></td></tr>";
+                } else {
+                    single_passes = single_passes + "<td align=\"center\"><img src=\"img/no.png\"></td></tr>\n";
+                }
+                single_passes = single_passes + "<tr><td><label> Представитель организации </label></td>" +
+                    "<td><label>" + res_5.rows[i][9] +"</label></td></tr>";
+                single_passes = single_passes + "<tr><td align=\"center\"><img src=\"img/date.png\"></td>\n" +
+                    "<td><label>"+get_date(String(res_5.rows[i][12]))+"</label></td>" +
+                    "<td align=\"center\"><img src=\"img/time.png\"></td>" +
+                    "<td><label>" + res_5.rows[i][13].substring(0,5) + "</label></td></tr>";
+                single_passes = single_passes + "<tr><td><label> Долговременный: </label></td>";
+                if (res_5.rows[i][22]) {
+                    single_passes = single_passes + "<td align=\"center\"><img src=\"img/ok.png\"></td></tr>\n";
+                    single_passes = single_passes + "<tr><td><label>Дата окончания:</label></td>" +
+                        "<td><label>"+get_date(String(res_5.rows[i][23]))+"</label></td></tr>";
+                } else {
+                    single_passes = single_passes + "<td align=\"center\"><img src=\"img/no.png\"></td></tr>\n";
+                }
+                single_passes = single_passes + "<tr><td><label>Комментарий</label></td>" +
+                    "<td><label>"+res_5.rows[i][21]+"</label></td></tr>";
+                single_passes = single_passes + "<tr><td><form action='"+request.url+"zbapology"+String(res_5.rows[i][3])+
+                    "' method='post'><input type='submit' value='Одобрить' target=\"OUT\">" +
+                    "</form></td><td><form action='"+request.url+"zbdecline"+String(res_5.rows[i][3])+
+                    "' method='post' target=\"OUT\"><input type='submit' value='Отклонить заявку'></form></td></tr>";
+                single_passes = single_passes + "</tbody></table></td>"
+                if ((i % 2 === 1) || (i === n_5 - 1)) {
+                    single_passes = single_passes + "</tr>";
+                }
             }
             break;
         case 6:
@@ -557,7 +771,61 @@ async function refresh(request, response) {
             });
             let n_6 = res_6.rowCount;
             for (let i = 0; i < n_6; i++){
-
+                if (i % 2 === 0) {
+                    single_passes = single_passes + "<tr>\n";
+                }
+                single_passes = single_passes + "<td>\n";
+                if (res_6.rows[i][22]) {
+                    single_passes = single_passes + "<table width=\"600\" class=\"long_time_pass\">\n" +
+                        "                <tbody>\n" +
+                        "<tr>\n" +
+                        "                    <td rowspan=\"6\" width=\"80\"><img src=\"img/user2.png\"></td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "                    <td colspan=\"4\"><b><font color=\"#0B0BCC\" size=\"5\">" +
+                        res_6.rows[i][0] +" " +
+                        res_6.rows[i][1] +" " +
+                        res_6.rows[i][2] +
+                        "</font><font\n" +
+                        "                            color=\"#004d00\" size=\"5\"> многоразовый </font></b></td>\n" +
+                        "                </tr>";
+                } else {
+                    single_passes = single_passes + "<table width=\"600\" class=\"single_pass\" height=\"200\">\n" +
+                        "                <tbody>\n" +
+                        "<tr>\n" +
+                        "                    <td rowspan=\"6\" width=\"80\"><img src=\"img/user2.png\"></td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "                    <td colspan=\"4\"><b><font color=\"#0B0BCC\" size=\"5\">" +
+                        res_6.rows[i][0] +" " +
+                        res_6.rows[i][1] +" " +
+                        res_6.rows[i][2] +
+                        "</font><font\n" +
+                        "                            color=\"#660000\" size=\"5\"> разовый </font></b></td>\n" +
+                        "                </tr>";
+                }
+                single_passes = single_passes + "<tr><td><label> Тип документа </label></td><td><label>" +
+                    res_6.rows[i][6] +"</label></td><td><label> Номер документа </label></td><td><label>" +
+                    res_6.rows[i][7] +"</label></td></tr>";
+                if (type_user === "controller_car") {
+                    single_passes = single_passes + "<tr><td><label> Водитель </label></td>";
+                    single_passes = single_passes + "<td align=\"center\"><img src=\"img/ok.png\"></td></tr>\n" +
+                        "<tr><td><label> Номер машины </label></td><td><label>"+res_6.rows[i][18]+"</label></td>" +
+                        "<td><label> Марка машины </label></td><td><label>"+res_6.rows[i][24]+"</label></td></tr>\n" +
+                        "<tr><td><label> Груз: </label></td><td><label>"+res_6.rows[i][25]+"</label></td></tr>";
+                }
+                single_passes = single_passes + "<tr><td><label> Представитель организации </label></td>" +
+                    "<td><label>" + res_6.rows[i][9] +"</label></td></tr>";
+                single_passes = single_passes + "<tr><td align=\"center\"><img src=\"img/date.png\"></td>\n" +
+                    "<td><label>"+get_date(String(res_6.rows[i][12]))+"</label></td>" +
+                    "<td align=\"center\"><img src=\"img/time.png\"></td>" +
+                    "<td><label>" + res_6.rows[i][13].substring(0,5) + "</label></td></tr>";
+                single_passes = single_passes + "<tr><td><label>Комментарий</label></td>" +
+                    "<td><label>"+res_6.rows[i][21]+"</label></td></tr>";
+                single_passes = single_passes + "</tbody></table></td>"
+                if ((i % 2 === 1) || (i === n_6 - 1)) {
+                    single_passes = single_passes + "</tr>";
+                }
             }
             break;
     }
@@ -584,6 +852,13 @@ async function refresh(request, response) {
     response.end();
 }
 
+app.post("/*zbdecline*",async function (request, response){
+
+});
+
+app.post("/*zbapology*",async function (request, response){
+
+});
 
 app.post("/*zbadmit*",async function (request, response) {
     let id = Number(request.url.substring(request.url.indexOf("admit")+5, request.url.length));
@@ -596,8 +871,12 @@ app.post("/*zbadmit*",async function (request, response) {
         password: request.cookies.password,
         port: 5432,
     });
-    let query_all_info = "SELECT * FROM single_passes WHERE id = "
+    let query_all_info = "SELECT * FROM single_passes WHERE id = " + String(id) + ";";
     client.connect();
+    const res_info = await client.query({
+        rowMode: 'array',
+        text: query_all_info,
+    });
     const res1 = await client.query({
         rowMode: 'array',
         text: query1,
@@ -645,24 +924,23 @@ app.post("/*zbadmit*",async function (request, response) {
         query2 = query2 + "INSERT INTO single_passes (surname,name,fathername,driver,date_pass,time_pass,"
         + "date_query,time_query,enter_time,pass_using,id_director,status_factory,status_appology,main_pass," +
         "cargo,mark_car,organization,organization_custom,type_document,number_document,num_auto) VALUES ('" +
-        list_pass[selected].surname + "','" + list_pass[selected].name + "','" + list_pass[selected].fathername
+        res_info.rows[0][0] + "','" + res_info.rows[0][1] + "','" + res_info.rows[0][2]
         + "',";
-        if (list_pass[selected].driver) {
-            query2 << "true,";
+        if (res_info.rows[0][17]) {
+            query2 = query2 + "true,";
         } else {
-            query2 << "false,";
+            query2 = query2 + "false,";
         }
-        query2 << "now(),now(),now(),now(),now(),true," << list_pass[selected].id_director << ",true,true,"
-        << list_pass[selected].id << ",'" << list_pass[selected].cargo << "','" << list_pass[selected].mark_auto <<
-        "','" << list_pass[selected].organization << "','" << list_pass[selected].organization_custom << "','" <<
-        list_pass[selected].type_document << "','" << list_pass[selected].number_document << "','"
-        << list_pass[selected].num_auto << "');";
-        PQexec(conn, query2.str().c_str());
-        std::stringstream
-        query3;
-        query3 << "UPDATE single_passes SET status_factory = true WHERE "
-        << "id = " << list_pass[selected].id << ";";
-        PQexec(conn, query3.str().c_str());
+        query2 = query2 + "now(),now(),now(),now(),now(),true," + String(res_info.rows[0][5]) + ",true,true,"
+        + id + ",'" + res_info.rows[0][25] + "','" + res_info.rows[0][24] +
+        "','" + res_info.rows[0][9] + "','" + res_info.rows[0][19] + "','" +
+            res_info.rows[0][6] + "','" + res_info.rows[0][7] + "','"
+        + res_info.rows[0][18] + "');";
+        client.query(query2);
+        let query3 = "";
+        query3 = query3 + "UPDATE single_passes SET status_factory = true WHERE "
+        + "id = " + id + ";";
+        client.query(query3);
     }
     response.redirect(request.url.substring(0,request.url.indexOf("zb")));
 })
