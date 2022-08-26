@@ -1,13 +1,13 @@
+//Инициализация основных необходимых библиотек
 const express = require("express");
 const app = express();
 const fs = require("fs");
 const  { Client } = require("pg");
 const urlencodedParser = express.urlencoded({extended: false});
 const cookieParser = require('cookie-parser');
-const {request} = require("express");
-const {get} = require("prompt");
 const libRouter = express.Router();
 
+//Создание основной страницы портала в зависимости от типа пользователя
 async function main_MyPortal(main_data) {
     if ((main_data.req.cookies.login === undefined) || (main_data.req.cookies.password === undefined)) {
         main_data.res.redirect("/login.html");
@@ -221,6 +221,11 @@ app.use("/MyJSCode.js",function(request, response){
     response.send(fileContent);
 })
 
+app.use("/ScriptDecline.js",function(request, response){
+    let fileContent = fs.readFileSync("ScriptDecline.js", "utf-8");
+    response.send(fileContent);
+})
+
 
 app.get("/MyPortal.html",async function (request, response) {
     let main_data = {
@@ -396,6 +401,8 @@ async function refresh(request, response) {
                         "</font><font\n" +
                         "                            color=\"#660000\" size=\"5\"> отклонено</font></b></td>\n" +
                         "                </tr>";
+                    single_passes = single_passes + "<tr><td><label>Причина</label></td><td><label>" +
+                        res_1.rows[i][26]+"</label></td></tr>"
                 }
                 single_passes = single_passes + "<tr><td><label> Тип документа </label></td><td><label>" +
                     res_1.rows[i][6] +"</label></td><td><label> Номер документа </label></td><td><label>" +
@@ -580,7 +587,7 @@ async function refresh(request, response) {
                 single_passes = single_passes + "<tr><td><label>Комментарий</label></td>" +
                     "<td><label>"+res_3.rows[i][21]+"</label></td></tr>";
                 single_passes = single_passes + "<tr><td><form action='"+request.url+"zbadmit"+String(res_3.rows[i][3])+
-                    "' method='post'><input type='submit' value='Пропустить' target=\"OUT\">" +
+                    "' method='post'><input type='submit' value='Пропустить'>" +
                     "</form></td></tr>";
                 single_passes = single_passes + "</tbody></table></td>"
                 if ((i % 2 === 1) || (i === n_3 - 1)) {
@@ -723,9 +730,9 @@ async function refresh(request, response) {
                 single_passes = single_passes + "<tr><td><label> Водитель </label></td>";
                 if (res_5.rows[i][17]) {
                     single_passes = single_passes + "<td align=\"center\"><img src=\"img/ok.png\"></td></tr>\n" +
-                        "<tr><td><label> Номер машины </label></td><td><label>"+res_1.rows[i][18]+"</label></td>" +
-                        "<td><label> Марка машины </label></td><td><label>"+res_1.rows[i][24]+"</label></td></tr>\n" +
-                        "<tr><td><label> Груз: </label></td><td><label>"+res_1.rows[i][25]+"</label></td></tr>";
+                        "<tr><td><label> Номер машины </label></td><td><label>"+res_5.rows[i][18]+"</label></td>" +
+                        "<td><label> Марка машины </label></td><td><label>"+res_5.rows[i][24]+"</label></td></tr>\n" +
+                        "<tr><td><label> Груз: </label></td><td><label>"+res_5.rows[i][25]+"</label></td></tr>";
                 } else {
                     single_passes = single_passes + "<td align=\"center\"><img src=\"img/no.png\"></td></tr>\n";
                 }
@@ -747,8 +754,10 @@ async function refresh(request, response) {
                     "<td><label>"+res_5.rows[i][21]+"</label></td></tr>";
                 single_passes = single_passes + "<tr><td><form action='"+request.url+"zbapology"+String(res_5.rows[i][3])+
                     "' method='post'><input type='submit' value='Одобрить' target=\"OUT\">" +
-                    "</form></td><td><form action='"+request.url+"zbdecline"+String(res_5.rows[i][3])+
-                    "' method='post' target=\"OUT\"><input type='submit' value='Отклонить заявку'></form></td></tr>";
+                    "</form></td><td><form id='decline"+res_5.rows[i][3]+"' method='post' target=\"OUT\">" +
+                    "<input type='button' onclick='decline_fun("+String(res_5.rows[i][3])
+                    +")' value='Отклонить заявку'></form>" +
+                    "</td></tr>";
                 single_passes = single_passes + "</tbody></table></td>"
                 if ((i % 2 === 1) || (i === n_5 - 1)) {
                     single_passes = single_passes + "</tr>";
@@ -852,12 +861,40 @@ async function refresh(request, response) {
     response.end();
 }
 
-app.post("/*zbdecline*",async function (request, response){
-
+app.post("/*zbdecline*",urlencodedParser,async function (request, response){
+    let id = request.url.substring(request.url.indexOf("id=")+3,request.url.indexOf("&"));
+    let commentary = decodeURI(request.url.substring(request.url.indexOf("commentary=")+11,request.url.length));
+    let client = new Client({
+        user: request.cookies.login,
+        host: 'localhost',
+        database: '345MF',
+        password: request.cookies.password,
+        port: 5432,
+    });
+    client.connect();
+    let query1 = "UPDATE single_passes SET status_pass = false WHERE id = " + id + ";";
+    let query2 = "UPDATE single_passes SET status_appology = false WHERE id = " + id + ";";
+    let query3 = "UPDATE single_passes SET commentary_decline = '"+commentary+"' WHERE id = " + id + ";";
+    client.query(query1);
+    client.query(query2);
+    client.query(query3);
+    response.redirect("/MyPortal.html!5");
 });
 
 app.post("/*zbapology*",async function (request, response){
-
+    let id = Number(request.url.substring(request.url.indexOf("apology")+7, request.url.length));
+    let query1 = "";
+    query1 = query1 + "UPDATE single_passes SET status_appology = true WHERE id = " + String(id) + ";";
+    let client = new Client({
+        user: request.cookies.login,
+        host: 'localhost',
+        database: '345MF',
+        password: request.cookies.password,
+        port: 5432,
+    });
+    client.connect();
+    client.query(query1);
+    response.redirect("/MyPortal.html!5");
 });
 
 app.post("/*zbadmit*",async function (request, response) {
